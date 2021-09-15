@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Input, List, Switch, Space, Select } from 'antd'
+import { Input, List, Switch, Space, Select, message } from 'antd'
 import { fetchKeyHints, isSearchKeyValid, SearchSortBy, AdvanceSearchOptions } from '../util';
 import debounce from 'debounce'
 
@@ -28,6 +28,12 @@ function SearchBar(props: SearchBarProps) {
                     latestKeyHintsFetchedTimestamp = timestamp;
                     setKeyHints(keyHints);
                 }
+            })
+            .catch(error => {
+              if (typeof error !== 'string' && !(error instanceof String)) {
+                error = "Unknown error";
+              }
+              message.error(error);
             });
     }, 1000);
 

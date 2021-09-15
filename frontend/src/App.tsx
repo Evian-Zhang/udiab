@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Spin } from 'antd';
+import { Layout, Spin, message } from 'antd';
 import SearchBar from './components/SearchBar';
 import NewsInfoList, { LoadingStatus } from './components/NewsInfoList';
 import { fetchRetrivedInfo, NewsInfo, AdvanceSearchOptions } from './util';
@@ -27,6 +27,13 @@ function App() {
         setIsSearching(false);
         setNewsInfos(retrivedInfos);
         setOffset(retrivedInfos.length);
+      })
+      .catch(error => {
+        setIsSearching(false);
+        if (typeof error !== 'string' && !(error instanceof String)) {
+          error = "Unknown error";
+        }
+        message.error(error);
       });
   }
 
@@ -45,6 +52,13 @@ function App() {
         } else {
           setLoadingStatus(LoadingStatus.ReadyToLoad);
         }
+      })
+      .catch(error => {
+        setLoadingStatus(LoadingStatus.ReadyToLoad);
+        if (typeof error !== 'string' && !(error instanceof String)) {
+          error = "Unknown error";
+        }
+        message.error(error);
       });
   }
 
