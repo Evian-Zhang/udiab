@@ -50,13 +50,13 @@ async function fetchKeyHints(key: string, timestamp: number): Promise<[string[],
                 throw errorMessage;
             }
         }
-        throw `Unknown error with status code ${keyHintsResponse.status}.`;
+        throw new Error(`Unknown error with status code ${keyHintsResponse.status}.`);
     }
     const fetchedKeyHints = await keyHintsResponse.json();
     if (isKeyHintsResponse(fetchedKeyHints)) {
         return [fetchedKeyHints.keyHints, timestamp];
     } else {
-        throw 'Unknown error.';
+        throw new Error('Unknown error.');
     }
 }
 
@@ -100,13 +100,13 @@ async function fetchRetrivedInfo(key: string, advanceSearchOptions: AdvanceSearc
                 throw errorMessage;
             }
         }
-        throw `Unknown error with status code ${retrievedInfoResponse.status}.`;
+        throw new Error(`Unknown error with status code ${retrievedInfoResponse.status}.`);
     }
     const fetchedRetrievedInfo = await retrievedInfoResponse.json();
     if (isRetrievedInfoResponse(fetchedRetrievedInfo)) {
         return fetchedRetrievedInfo.newsInfos;
     } else {
-        throw 'Unknown error.';
+        throw new Error('Unknown error.');
     }
 }
 

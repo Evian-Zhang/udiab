@@ -30,10 +30,11 @@ function SearchBar(props: SearchBarProps) {
                 }
             })
             .catch(error => {
-              if (typeof error !== 'string' && !(error instanceof String)) {
-                error = "Unknown error";
-              }
-              message.error(error);
+                if (error instanceof Error) {
+                  message.error(error.message);
+                } else {
+                  message.error("Unknown error");
+                }
             });
     }, 1000);
 

@@ -30,10 +30,11 @@ function App() {
       })
       .catch(error => {
         setIsSearching(false);
-        if (typeof error !== 'string' && !(error instanceof String)) {
-          error = "Unknown error";
+        if (error instanceof Error) {
+          message.error(error.message);
+        } else {
+          message.error("Unknown error");
         }
-        message.error(error);
       });
   }
 
@@ -55,10 +56,11 @@ function App() {
       })
       .catch(error => {
         setLoadingStatus(LoadingStatus.ReadyToLoad);
-        if (typeof error !== 'string' && !(error instanceof String)) {
-          error = "Unknown error";
+        if (error instanceof Error) {
+          message.error(error.message);
+        } else {
+          message.error("Unknown error");
         }
-        message.error(error);
       });
   }
 
