@@ -4,8 +4,8 @@ export interface NewsInfo {
 }
 
 export enum SearchSortBy {
-    Time,
-    Hot
+    Time = 0,
+    Hot = 1,
 }
 
 export class AdvanceSearchOptions {
