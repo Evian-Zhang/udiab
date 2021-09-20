@@ -1,24 +1,23 @@
-name: Backend-CI
+name: SearchBase-CI
 
 on:
   push:
     branches:
       - master
     paths:
-      - 'backend/**'
       - 'search_base/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      working-directory: ./backend
+      working-directory: ./search_base
     
     steps:
       - uses: actions/checkout@v2
       - name: build
-        run: cargo build --package backend
+        run: cargo build --package search_base
         working-directory: ${{ env.working-directory }}      
       - name: test
-        run: cargo test --package backend
+        run: cargo test --package search_base
         working-directory: ${{ env.working-directory }}    
