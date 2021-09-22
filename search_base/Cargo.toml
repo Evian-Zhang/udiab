@@ -6,6 +6,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tantivy = "0.15" # Should be "0.16", see https://github.com/DCjanus/cang-jie/issues/27
+tantivy = "0.16" # Should be "0.16", see https://github.com/DCjanus/cang-jie/issues/27
 jieba-rs = "0.6"
-cang-jie = "0.12"
+cang-jie = "0.13"
