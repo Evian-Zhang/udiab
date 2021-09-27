@@ -6,6 +6,7 @@ use serde::Deserialize;
 pub struct Config {
     pub host: String,
     pub port: u16,
+    pub index_store_directory: String,
 }
 
 impl Config {

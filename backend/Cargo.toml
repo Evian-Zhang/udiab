@@ -12,3 +12,4 @@ serde_json = "1.0"
 toml = "0.5"
 derive_more = "0.99"
 search_base = { path = "../search_base" }
+tantivy = "0.16"

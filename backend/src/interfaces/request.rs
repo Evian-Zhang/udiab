@@ -13,7 +13,7 @@ pub struct KeyHintsRequest {
 pub struct RetrievedInfoRequest {
     pub key: String,
     #[serde(flatten)]
-    pub advanced_serach_options: AdvanceSearchOptions,
+    pub advanced_search_options: AdvanceSearchOptions,
     pub offset: usize,
     pub page_size: usize,
 }

@@ -6,18 +6,28 @@ export interface NewsInfo {
 export enum SearchSortBy {
     Time = 0,
     Hot = 1,
+    Relevance = 2,
+}
+
+export enum SearchField {
+    Title = 0,
+    Code = 1,
+    All = 2,
 }
 
 export class AdvanceSearchOptions {
     sortBy: SearchSortBy
+    searchField: SearchField
 
-    constructor(sortBy: SearchSortBy) {
+    constructor(sortBy: SearchSortBy, searchField: SearchField) {
         this.sortBy = sortBy;
+        this.searchField = searchField;
     }
 
     static default(): AdvanceSearchOptions {
         return {
-            sortBy: SearchSortBy.Time
+            sortBy: SearchSortBy.Relevance,
+            searchField: SearchField.All
         };
     }
 }

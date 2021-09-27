@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Input, List, Switch, Space, Select, message } from 'antd'
-import { fetchKeyHints, isSearchKeyValid, SearchSortBy, AdvanceSearchOptions } from '../util';
+import { fetchKeyHints, isSearchKeyValid, SearchSortBy, AdvanceSearchOptions, SearchField } from '../util';
 import debounce from 'debounce'
 
 const { Search } = Input;
@@ -67,7 +67,7 @@ function SearchBar(props: SearchBarProps) {
                     width: "100%",
                     visibility: advancedSearchVisiblity,
                     display: "flex",
-                    justifyContent: "center"
+                    justifyContent: "space-around"
                 }}>
                     <div>
                         Sort by
@@ -82,12 +82,43 @@ function SearchBar(props: SearchBarProps) {
                                 {
                                     label: "Hot",
                                     value: SearchSortBy.Hot
+                                },
+                                {
+                                    label: "Relevance",
+                                    value: SearchSortBy.Relevance
                                 }
                             ]}
                             onChange={(value, _) => {
                                 props.onAdvanceSearchOptionsChange({
                                     ...props.advanceSearchOptions,
                                     sortBy: value
+                                });
+                            }}
+                        />
+                    </div>
+                    <div>
+                        Searching
+                        <Select
+                            defaultValue={AdvanceSearchOptions.default().searchField}
+                            style={{width: "auto"}}
+                            options={[
+                                {
+                                    label: "Title",
+                                    value: SearchField.Title
+                                },
+                                {
+                                    label: "Code",
+                                    value: SearchField.Code
+                                },
+                                {
+                                    label: "All",
+                                    value: SearchField.All
+                                }
+                            ]}
+                            onChange={(value, _) => {
+                                props.onAdvanceSearchOptionsChange({
+                                    ...props.advanceSearchOptions,
+                                    searchField: value
                                 });
                             }}
                         />

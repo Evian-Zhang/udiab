@@ -339,6 +339,7 @@ dependencies = [
  "search_base",
  "serde",
  "serde_json",
+ "tantivy",
  "toml",
 ]
 
