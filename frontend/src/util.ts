@@ -1,4 +1,4 @@
-export interface NewsInfo {
+export interface ArticleInfo {
     url: string,
     title: string
 }
@@ -71,11 +71,11 @@ async function fetchKeyHints(key: string, timestamp: number): Promise<[string[],
 }
 
 interface RetrievedInfoResponse {
-    newsInfos: NewsInfo[]
+    articleInfos: ArticleInfo[]
 }
 
 function isRetrievedInfoResponse(object: any): object is RetrievedInfoResponse {
-    return 'newsInfos' in object
+    return 'articleInfos' in object
 }
 
 // see https://stackoverflow.com/a/46982882/10005095
@@ -92,7 +92,7 @@ function toString(o: any) {
   }
   
 
-async function fetchRetrivedInfo(key: string, advanceSearchOptions: AdvanceSearchOptions, offset: number, pageSize: number): Promise<NewsInfo[]> {
+async function fetchRetrivedInfo(key: string, advanceSearchOptions: AdvanceSearchOptions, offset: number, pageSize: number): Promise<ArticleInfo[]> {
     const api = `${window.location.origin}/api/retrieved_info?`;
     const retrievedInfoResponse = await fetch(api, {
         body: new URLSearchParams(toString({
@@ -114,7 +114,7 @@ async function fetchRetrivedInfo(key: string, advanceSearchOptions: AdvanceSearc
     }
     const fetchedRetrievedInfo = await retrievedInfoResponse.json();
     if (isRetrievedInfoResponse(fetchedRetrievedInfo)) {
-        return fetchedRetrievedInfo.newsInfos;
+        return fetchedRetrievedInfo.articleInfos;
     } else {
         throw new Error('Unknown error.');
     }

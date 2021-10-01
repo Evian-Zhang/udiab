@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, List, Spin } from 'antd';
-import { NewsInfo } from '../util'
-import NewsInfoCard from './NewsInfoCard'
+import { ArticleInfo } from '../util'
+import ArticleInfoCard from './ArticleInfoCard'
 
 export enum LoadingStatus {
     Loading,
@@ -9,14 +9,14 @@ export enum LoadingStatus {
     NothingToLoad
 }
 
-interface NewsInfoListProps {
-    // newsInfos is assumed non-empty
-    newsInfos: NewsInfo[],
+interface ArticleInfoListProps {
+    // articleInfos is assumed non-empty
+    articleInfos: ArticleInfo[],
     loadingStatus: LoadingStatus,
     onLoadMore: ()=>void,
 }
 
-function NewsInfoList(props: NewsInfoListProps) {
+function ArticleInfoList(props: ArticleInfoListProps) {
     const loadMore = (
         <div
             style={{
@@ -45,10 +45,10 @@ function NewsInfoList(props: NewsInfoListProps) {
 
     return (
         <List
-            dataSource={props.newsInfos}
+            dataSource={props.articleInfos}
             renderItem={item => (
-                <NewsInfoCard
-                    newsInfo={item}
+                <ArticleInfoCard
+                    articleInfo={item}
                 />
             )}
             loadMore={loadMore}
@@ -56,4 +56,4 @@ function NewsInfoList(props: NewsInfoListProps) {
     );
 }
 
-export default NewsInfoList;
+export default ArticleInfoList;

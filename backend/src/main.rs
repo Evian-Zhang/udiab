@@ -42,7 +42,7 @@ async fn get_retrieved_info(
     );
     Ok(HttpResponse::Ok()
         .content_type("application/json")
-        .body(serde_json::to_string(&RetrievedInfoResponse { news_infos: vec![] }).unwrap()))
+        .body(serde_json::to_string(&RetrievedInfoResponse { article_infos: vec![] }).unwrap()))
 }
 
 #[actix_web::main]

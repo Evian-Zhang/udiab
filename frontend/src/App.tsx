@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Layout, Spin, message } from 'antd';
 import SearchBar from './components/SearchBar';
-import NewsInfoList, { LoadingStatus } from './components/NewsInfoList';
-import { fetchRetrivedInfo, NewsInfo, AdvanceSearchOptions } from './util';
+import ArticleInfoList, { LoadingStatus } from './components/ArticleInfoList';
+import { fetchRetrivedInfo, ArticleInfo, AdvanceSearchOptions } from './util';
 
 const { Header, Content } = Layout;
 
@@ -10,8 +10,8 @@ function App() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [advanceSearchOptions, setAdvanceSearchOptions] = useState(AdvanceSearchOptions.default());
-  const [newsInfos, setNewsInfos] = useState<NewsInfo[]>([]);
-  // loading status of news info list
+  const [articleInfos, setArticleInfos] = useState<ArticleInfo[]>([]);
+  // loading status of articles info list
   const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.ReadyToLoad);
   const [offset, setOffset] = useState(0);
   const PAGE_SIZE = 10;
@@ -25,7 +25,7 @@ function App() {
     fetchRetrivedInfo(key, advanceSearchOptions, 0, PAGE_SIZE)
       .then(retrivedInfos => {
         setIsSearching(false);
-        setNewsInfos(retrivedInfos);
+        setArticleInfos(retrivedInfos);
         setOffset(retrivedInfos.length);
       })
       .catch(error => {
@@ -45,9 +45,9 @@ function App() {
     setLoadingStatus(LoadingStatus.Loading);
     fetchRetrivedInfo(searchKey, advanceSearchOptions, offset, PAGE_SIZE)
       .then(newRetrivedInfos => {
-        const newNewsInfos = newsInfos.concat(newRetrivedInfos);
-        setNewsInfos(newNewsInfos)
-        setOffset(newNewsInfos.length);
+        const newArticleInfos = articleInfos.concat(newRetrivedInfos);
+        setArticleInfos(newArticleInfos)
+        setOffset(newArticleInfos.length);
         if (newRetrivedInfos.length === 0) {
           setLoadingStatus(LoadingStatus.NothingToLoad);
         } else {
@@ -99,15 +99,15 @@ function App() {
                 <Spin size="large"/>
               </div>
             : (
-              newsInfos.length !== 0
+              articleInfos.length !== 0
               ?
                 <div
                   style={{
                     width: "80%"
                   }}
                 >
-                  <NewsInfoList
-                    newsInfos={newsInfos}
+                  <ArticleInfoList
+                    articleInfos={articleInfos}
                     loadingStatus={loadingStatus}
                     onLoadMore={onLoadMore}
                   />

@@ -12,7 +12,7 @@ use tantivy::{error::TantivyError, schema::Field};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct NewsInfo {
+pub struct ArticleInfo {
     pub url: String,
     pub title: String,
 }
