@@ -10,5 +10,5 @@ pub struct KeyHintsResponse {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RetrievedInfoResponse {
-    pub article_infos: Vec<ArticleInfo>,
+    pub article_infos: Vec<SearchedArticleInfo>,
 }

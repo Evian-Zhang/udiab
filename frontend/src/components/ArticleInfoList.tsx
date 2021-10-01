@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, List, Spin } from 'antd';
-import { ArticleInfo } from '../util'
+import { SearchedArticleInfo } from '../util'
 import ArticleInfoCard from './ArticleInfoCard'
 
 export enum LoadingStatus {
@@ -11,7 +11,7 @@ export enum LoadingStatus {
 
 interface ArticleInfoListProps {
     // articleInfos is assumed non-empty
-    articleInfos: ArticleInfo[],
+    articleInfos: SearchedArticleInfo[],
     loadingStatus: LoadingStatus,
     onLoadMore: ()=>void,
 }

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Layout, Spin, message } from 'antd';
 import SearchBar from './components/SearchBar';
 import ArticleInfoList, { LoadingStatus } from './components/ArticleInfoList';
-import { fetchRetrivedInfo, ArticleInfo, AdvanceSearchOptions } from './util';
+import { fetchRetrivedInfo, SearchedArticleInfo, AdvanceSearchOptions } from './util';
 
 const { Header, Content } = Layout;
 
@@ -10,7 +10,7 @@ function App() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchKey, setSearchKey] = useState("");
   const [advanceSearchOptions, setAdvanceSearchOptions] = useState(AdvanceSearchOptions.default());
-  const [articleInfos, setArticleInfos] = useState<ArticleInfo[]>([]);
+  const [articleInfos, setArticleInfos] = useState<SearchedArticleInfo[]>([]);
   // loading status of articles info list
   const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.ReadyToLoad);
   const [offset, setOffset] = useState(0);

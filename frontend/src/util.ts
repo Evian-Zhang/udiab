@@ -1,6 +1,30 @@
-export interface ArticleInfo {
+export interface BackendRange {
+    start: number,
+    end: number
+}
+
+/**
+ * Article info structure used for searching
+ */
+export interface SearchedArticleInfo {
+    /** url for article */
     url: string,
-    title: string
+    /** title snippet for article. Never be empty */
+    titleSnippet: string,
+    /** highlighted positions for title snippet */
+    titleHighlightedPositions: BackendRange[],
+    /** body snippet for article. May not be empty? */
+    bodySnippet: string,
+    /** highlighted positions for body snippet */
+    bodyHighlightedPositions: BackendRange[],
+    /** code snippet for article. May be empty */
+    codeSnippet: String,
+    /** highlighted positinos for code snippet */
+    codeHighlightedPosition: BackendRange[],
+    /** number of likes */
+    likes: number,
+    /** time of article. UTC millisecond */
+    time: number
 }
 
 export enum SearchSortBy {
@@ -71,7 +95,7 @@ async function fetchKeyHints(key: string, timestamp: number): Promise<[string[],
 }
 
 interface RetrievedInfoResponse {
-    articleInfos: ArticleInfo[]
+    articleInfos: SearchedArticleInfo[]
 }
 
 function isRetrievedInfoResponse(object: any): object is RetrievedInfoResponse {
@@ -92,7 +116,7 @@ function toString(o: any) {
   }
   
 
-async function fetchRetrivedInfo(key: string, advanceSearchOptions: AdvanceSearchOptions, offset: number, pageSize: number): Promise<ArticleInfo[]> {
+async function fetchRetrivedInfo(key: string, advanceSearchOptions: AdvanceSearchOptions, offset: number, pageSize: number): Promise<SearchedArticleInfo[]> {
     const api = `${window.location.origin}/api/retrieved_info?`;
     const retrievedInfoResponse = await fetch(api, {
         body: new URLSearchParams(toString({

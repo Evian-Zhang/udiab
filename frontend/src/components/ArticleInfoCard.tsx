@@ -1,9 +1,9 @@
 import React from 'react';
 import { Card } from 'antd';
-import { ArticleInfo } from '../util';
+import { SearchedArticleInfo } from '../util';
 
 interface ArticleInfoCardProps {
-    articleInfo: ArticleInfo
+    articleInfo: SearchedArticleInfo
 }
 
 function ArticleInfoCard(props: ArticleInfoCardProps) {
@@ -11,7 +11,7 @@ function ArticleInfoCard(props: ArticleInfoCardProps) {
         <Card
             title={
                 <a href={props.articleInfo.url}>
-                    {props.articleInfo.title}
+                    {props.articleInfo.titleSnippet}
                 </a>
             }
             style={{width: "100%"}}

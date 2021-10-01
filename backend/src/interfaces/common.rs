@@ -4,17 +4,50 @@ use actix_web::{
     http::{header, StatusCode},
     HttpResponse,
 };
+use chrono::{serde::ts_milliseconds::serialize as to_milli_ts, DateTime, Utc};
 use derive_more::{Display, Error};
 use search_base::ProjectDocument;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+use std::ops::Range;
 use tantivy::{error::TantivyError, schema::Field};
 
+/// Article structure used for searching
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ArticleInfo {
+pub struct SearchedArticleInfo {
+    /// URL of article
     pub url: String,
-    pub title: String,
+    /// Snippet of title
+    ///
+    /// If only other components are matched, and title has no snippet,
+    /// this field is the whole title.
+    // TODO: May be limit the length if is whole title?
+    pub title_snippet: String,
+    /// Highlighted positions of title (end is excluded)
+    ///
+    /// If only other components are matched, and title has no snippet,
+    /// this field is empty list
+    pub title_highlighted_positions: Vec<Range<usize>>,
+    /// Snippet of body
+    pub body_snippet: String,
+    /// Highlighted poisitions of body
+    pub body_highlighted_positions: Vec<Range<usize>>,
+    /// Snippet of code
+    /// 
+    /// If no code is matched, this field is empty string
+    pub code_snippet: String,
+    /// Highlighted poisitions of code
+    pub code_highlighted_positions: Vec<Range<usize>>,
+    /// Number of likes
+    ///
+    /// Used for hot scoring
+    pub likes: usize,
+    /// Time of this article
+    ///
+    /// In format of milliseconds in UTC
+    #[serde(serialize_with = "to_milli_ts")]
+    pub time: DateTime<Utc>,
 }
 
 #[derive(Deserialize)]

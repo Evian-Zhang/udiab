@@ -40,9 +40,12 @@ async fn get_retrieved_info(
             .search_field
             .tantivy_fields(app_state.project_document),
     );
-    Ok(HttpResponse::Ok()
-        .content_type("application/json")
-        .body(serde_json::to_string(&RetrievedInfoResponse { article_infos: vec![] }).unwrap()))
+    Ok(HttpResponse::Ok().content_type("application/json").body(
+        serde_json::to_string(&RetrievedInfoResponse {
+            article_infos: vec![],
+        })
+        .unwrap(),
+    ))
 }
 
 #[actix_web::main]
