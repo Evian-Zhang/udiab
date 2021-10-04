@@ -18,7 +18,7 @@ export interface SearchedArticleInfo {
     /** highlighted positions for body snippet */
     bodyHighlightedPositions: BackendRange[],
     /** code snippet for article. May be empty */
-    codeSnippet: String,
+    codeSnippet: string,
     /** highlighted positinos for code snippet */
     codeHighlightedPosition: BackendRange[],
     /** number of likes */
@@ -72,9 +72,9 @@ function isKeyHintsResponse(object: any): object is KeyHintsResponse {
 }
 
 async function fetchKeyHints(key: string, timestamp: number): Promise<[string[], number]> {
-    const api = `${window.location.origin}/api/key_hints?`;
-    const keyHintsResponse = await fetch(api, {
-        body: new URLSearchParams({ key: key }),
+    let api = new URL(`${window.location.origin}/api/key_hints`);
+    api.search = (new URLSearchParams({ key: key })).toString();
+    const keyHintsResponse = await fetch(api.toString(), {
         method: 'GET'
     });
     if (keyHintsResponse.status !== 200) {
@@ -113,18 +113,17 @@ function toString(o: any) {
     });
     
     return o;
-  }
-  
+}
 
 async function fetchRetrivedInfo(key: string, advanceSearchOptions: AdvanceSearchOptions, offset: number, pageSize: number): Promise<SearchedArticleInfo[]> {
-    const api = `${window.location.origin}/api/retrieved_info?`;
-    const retrievedInfoResponse = await fetch(api, {
-        body: new URLSearchParams(toString({
-            key: key,
-            offset: offset,
-            pageSize: pageSize,
-            ...advanceSearchOptions
-        })),
+    let api = new URL(`${window.location.origin}/api/retrieved_info`);
+    api.search = (new URLSearchParams(toString({
+        key: key,
+        offset: offset,
+        pageSize: pageSize,
+        ...advanceSearchOptions
+    }))).toString();
+    const retrievedInfoResponse = await fetch(api.toString(), {
         method: 'GET'
     });
     if (retrievedInfoResponse.status !== 200) {

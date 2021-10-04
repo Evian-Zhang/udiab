@@ -45,11 +45,14 @@ function ArticleInfoList(props: ArticleInfoListProps) {
 
     return (
         <List
+            grid={{column: 1, gutter: 16}}
             dataSource={props.articleInfos}
             renderItem={item => (
-                <ArticleInfoCard
-                    articleInfo={item}
-                />
+                <List.Item>
+                    <ArticleInfoCard
+                        articleInfo={item}
+                    />
+                </List.Item>
             )}
             loadMore={loadMore}
         />
