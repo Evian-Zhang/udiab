@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Spin, message } from 'antd';
 import SearchBar from './components/SearchBar';
 import ArticleInfoList, { LoadingStatus } from './components/ArticleInfoList';
-import { fetchRetrivedInfo, SearchedArticleInfo, AdvanceSearchOptions } from './util';
+import TopArticlesListCard from './components/TopArticlesListCard';
+import { fetchRetrivedInfo, SearchedArticleInfo, AdvanceSearchOptions, TopArticleInfo, fetchTopArticleInfos } from './util';
 
 const { Header, Content } = Layout;
 
@@ -14,7 +15,22 @@ function App() {
   // loading status of articles info list
   const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.ReadyToLoad);
   const [offset, setOffset] = useState(0);
+  const [topArticleInfos, setTopArticleInfos] = useState<TopArticleInfo[]>([]);
   const PAGE_SIZE = 10;
+
+  useEffect(() => {
+    fetchTopArticleInfos()
+      .then(topArticleInfos => {
+        setTopArticleInfos(topArticleInfos);
+      })
+      .catch(error => {
+        if (error instanceof Error) {
+          message.error(error.message);
+        } else {
+          message.error("Unknown error");
+        }
+      });
+  }, []);
 
   function onSearch(key: string) {
     if (isSearching) {
@@ -87,6 +103,15 @@ function App() {
           </div>
         </div>
         <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
+          <div style={{
+            position: "fixed",
+            right: "2.5%",
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: "20%"
+          }}>
+            <TopArticlesListCard topArticleInfos={topArticleInfos}/>
+          </div>
           {
             isSearching 
             ? 
@@ -103,7 +128,7 @@ function App() {
               ?
                 <div
                   style={{
-                    width: "80%"
+                    width: "50%"
                   }}
                 >
                   <ArticleInfoList

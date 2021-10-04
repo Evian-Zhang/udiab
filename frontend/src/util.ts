@@ -143,4 +143,40 @@ async function fetchRetrivedInfo(key: string, advanceSearchOptions: AdvanceSearc
     }
 }
 
-export { isSearchKeyValid, fetchKeyHints, fetchRetrivedInfo };
+export interface TopArticleInfo {
+    url: string,
+    title: string,
+    likes: number
+}
+
+interface TopInfoResponse {
+    topArticleInfos: TopArticleInfo[]
+}
+
+function isTopInfoResponse(object: any): object is TopInfoResponse {
+    return 'topArticleInfos' in object
+}
+
+async function fetchTopArticleInfos(): Promise<TopArticleInfo[]> {
+    let api = new URL(`${window.location.origin}/api/top_info`);
+    const topInfoResponse = await fetch(api.toString(), {
+        method: 'GET'
+    });
+    if (topInfoResponse.status !== 200) {
+        if (topInfoResponse.status === 500) {
+            const errorMessage = await topInfoResponse.text();
+            if (errorMessage.length !== 0) {
+                throw errorMessage;
+            }
+        }
+        throw new Error(`Unknown error with status code ${topInfoResponse.status}.`);
+    }
+    const fetchedTopInfo = await topInfoResponse.json();
+    if (isTopInfoResponse(fetchedTopInfo)) {
+        return fetchedTopInfo.topArticleInfos;
+    } else {
+        throw new Error('Unknown error.');
+    }
+}
+
+export { isSearchKeyValid, fetchKeyHints, fetchRetrivedInfo, fetchTopArticleInfos };
