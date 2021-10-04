@@ -48,6 +48,16 @@ async fn get_retrieved_info(
     ))
 }
 
+#[get("/top_info")]
+async fn get_top_info(app_state: web::Data<AppState>) -> Result<impl Responder, UserError> {
+    Ok(HttpResponse::Ok().content_type("application/json").body(
+        serde_json::to_string(&TopArticleInfoResponse {
+            top_article_infos: vec![],
+        })
+        .unwrap(),
+    ))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config = config::Config::retrieve_config();

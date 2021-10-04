@@ -34,7 +34,7 @@ pub struct SearchedArticleInfo {
     /// Highlighted poisitions of body
     pub body_highlighted_positions: Vec<Range<usize>>,
     /// Snippet of code
-    /// 
+    ///
     /// If no code is matched, this field is empty string
     pub code_snippet: String,
     /// Highlighted poisitions of code
@@ -125,6 +125,18 @@ impl SearchField {
             SearchField::All => vec![title, body, code],
         }
     }
+}
+
+/// Article structure used for today's top
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TopArticleInfo {
+    /// URL of article
+    pub url: String,
+    /// Title of article
+    pub title: String,
+    /// Number of likes
+    pub likes: usize,
 }
 
 /// Errors which will be sent to user
