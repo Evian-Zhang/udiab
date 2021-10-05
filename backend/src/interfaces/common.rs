@@ -5,7 +5,7 @@ use actix_web::{
     HttpResponse,
 };
 use chrono::{serde::ts_milliseconds::serialize as to_milli_ts, DateTime, Utc};
-use derive_more::{Display, Error};
+use derive_more::Display;
 use search_base::ProjectDocument;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
@@ -42,7 +42,7 @@ pub struct SearchedArticleInfo {
     /// Number of likes
     ///
     /// Used for hot scoring
-    pub likes: usize,
+    pub likes: u64,
     /// Time of this article
     ///
     /// In format of milliseconds in UTC
@@ -127,6 +127,8 @@ impl SearchField {
     }
 }
 
+pub const TOP_ARTICLE_INFOS_COUNT: usize = 10;
+
 /// Article structure used for today's top
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -136,14 +138,20 @@ pub struct TopArticleInfo {
     /// Title of article
     pub title: String,
     /// Number of likes
-    pub likes: usize,
+    pub likes: u64,
 }
 
 /// Errors which will be sent to user
-#[derive(Debug, Display, Error)]
+#[derive(Debug, Display)]
 pub enum UserError {
-    UnexpectedTantivy { tantivy_error: TantivyError },
+    UnexpectedTantivy {
+        tantivy_error: TantivyError,
+    },
+    #[display(fmt = "Unexpected error: {}", _0)]
+    Unexpected(String),
 }
+
+impl std::error::Error for UserError {}
 
 impl error::ResponseError for UserError {
     fn error_response(&self) -> HttpResponse {

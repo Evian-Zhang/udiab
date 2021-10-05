@@ -8,6 +8,7 @@ use tantivy::{query::QueryParser, IndexReader};
 
 mod config;
 mod interfaces;
+mod model;
 
 use interfaces::*;
 
@@ -50,12 +51,10 @@ async fn get_retrieved_info(
 
 #[get("/top_info")]
 async fn get_top_info(app_state: web::Data<AppState>) -> Result<impl Responder, UserError> {
-    Ok(HttpResponse::Ok().content_type("application/json").body(
-        serde_json::to_string(&TopArticleInfoResponse {
-            top_article_infos: vec![],
-        })
-        .unwrap(),
-    ))
+    let top_article_infos = model::get_top_info(&app_state.reader, &app_state.project_document)?;
+    Ok(HttpResponse::Ok()
+        .content_type("application/json")
+        .body(serde_json::to_string(&TopArticleInfoResponse { top_article_infos }).unwrap()))
 }
 
 #[actix_web::main]
