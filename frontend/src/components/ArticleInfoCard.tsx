@@ -48,19 +48,19 @@ function ArticleInfoCard(props: ArticleInfoCardProps) {
         <a href={props.articleInfo.url}>
             <Card
                 hoverable
-                title={composeSnippetHighlight(props.articleInfo.titleSnippet, props.articleInfo.titleHighlightedPositions)}
+                title={composeSnippetHighlight(props.articleInfo.titleSnippet.fragments, props.articleInfo.titleSnippet.highlightedPositions)}
                 style={{width: "100%"}}
             >
                 <div style={{width: "100%"}}>
-                    {composeSnippetHighlight(props.articleInfo.bodySnippet, props.articleInfo.bodyHighlightedPositions)}
+                    {composeSnippetHighlight(props.articleInfo.bodySnippet.fragments, props.articleInfo.bodySnippet.highlightedPositions)}
                 </div>
                 {
-                    props.articleInfo.codeSnippet.length !== 0 &&
+                    props.articleInfo.codeSnippet &&
                     <>
                         <Divider/>
                         <Card type="inner" title="Code snippet">
                             <pre><code>
-                                {composeSnippetHighlight(props.articleInfo.codeSnippet, props.articleInfo.codeHighlightedPosition)}
+                                {composeSnippetHighlight(props.articleInfo.codeSnippet.fragments, props.articleInfo.codeSnippet.highlightedPositions)}
                             </code></pre>
                         </Card>
                     </>

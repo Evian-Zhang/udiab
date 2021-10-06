@@ -3,6 +3,11 @@ export interface BackendRange {
     end: number
 }
 
+export interface Snippet {
+    fragments: string,
+    highlightedPositions: BackendRange[]
+}
+
 /**
  * Article info structure used for searching
  */
@@ -10,17 +15,11 @@ export interface SearchedArticleInfo {
     /** url for article */
     url: string,
     /** title snippet for article. Never be empty */
-    titleSnippet: string,
-    /** highlighted positions for title snippet */
-    titleHighlightedPositions: BackendRange[],
+    titleSnippet: Snippet
     /** body snippet for article. May not be empty? */
-    bodySnippet: string,
-    /** highlighted positions for body snippet */
-    bodyHighlightedPositions: BackendRange[],
+    bodySnippet: Snippet
     /** code snippet for article. May be empty */
-    codeSnippet: string,
-    /** highlighted positinos for code snippet */
-    codeHighlightedPosition: BackendRange[],
+    codeSnippet?: Snippet
     /** number of likes */
     likes: number,
     /** time of article. UTC millisecond */
@@ -42,16 +41,19 @@ export enum SearchField {
 export class AdvanceSearchOptions {
     sortBy: SearchSortBy
     searchField: SearchField
+    useComplexSearch: boolean
 
-    constructor(sortBy: SearchSortBy, searchField: SearchField) {
+    constructor(sortBy: SearchSortBy, searchField: SearchField, useComplexSearch: boolean) {
         this.sortBy = sortBy;
         this.searchField = searchField;
+        this.useComplexSearch = useComplexSearch;
     }
 
     static default(): AdvanceSearchOptions {
         return {
             sortBy: SearchSortBy.Relevance,
-            searchField: SearchField.All
+            searchField: SearchField.All,
+            useComplexSearch: false
         };
     }
 }

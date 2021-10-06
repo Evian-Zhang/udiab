@@ -123,6 +123,18 @@ function SearchBar(props: SearchBarProps) {
                             }}
                         />
                     </div>
+                    <div>
+                        <Switch
+                            defaultChecked={AdvanceSearchOptions.default().useComplexSearch}
+                            onChange={useComplexSearch => {
+                                props.onAdvanceSearchOptionsChange({
+                                    ...props.advanceSearchOptions,
+                                    useComplexSearch
+                                });
+                            }}
+                        />
+                        Use Complex Search
+                    </div>
                 </div>
             </div>
             <Search

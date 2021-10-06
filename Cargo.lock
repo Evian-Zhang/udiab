@@ -335,6 +335,7 @@ name = "backend"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "cang-jie",
  "chrono",
  "derive_more",
  "search_base",

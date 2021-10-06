@@ -14,3 +14,4 @@ derive_more = "0.99"
 search_base = { path = "../search_base" }
 tantivy = "0.16"
 chrono = { version = "0.4", features = ["serde"] }
+cang-jie = "0.13"

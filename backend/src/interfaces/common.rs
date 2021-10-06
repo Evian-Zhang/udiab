@@ -12,6 +12,26 @@ use std::convert::TryFrom;
 use std::ops::Range;
 use tantivy::{error::TantivyError, schema::Field};
 
+/// Max length of title and/or title snippet (in UTF-8 chars)
+pub const MAX_TITLE_LENGTH: usize = 32;
+
+/// Max length of body snippet (in UTF-8 chars)
+pub const MAX_BODY_LENGTH: usize = 256;
+
+/// Max length of code snippet (in UTF-8 chars)
+pub const MAX_CODE_LENGTH: usize = 256;
+
+/// Snippet
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Snippet {
+    pub fragments: String,
+    /// Position of highlighted segments in fragments
+    ///
+    /// This field may be empty if no snippet is matched
+    pub highlighted_positions: Vec<Range<usize>>,
+}
+
 /// Article structure used for searching
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -22,23 +42,14 @@ pub struct SearchedArticleInfo {
     ///
     /// If only other components are matched, and title has no snippet,
     /// this field is the whole title.
-    // TODO: May be limit the length if is whole title?
-    pub title_snippet: String,
-    /// Highlighted positions of title (end is excluded)
-    ///
-    /// If only other components are matched, and title has no snippet,
-    /// this field is empty list
-    pub title_highlighted_positions: Vec<Range<usize>>,
+    pub title_snippet: Snippet,
     /// Snippet of body
-    pub body_snippet: String,
-    /// Highlighted poisitions of body
-    pub body_highlighted_positions: Vec<Range<usize>>,
+    pub body_snippet: Snippet,
     /// Snippet of code
     ///
-    /// If no code is matched, this field is empty string
-    pub code_snippet: String,
-    /// Highlighted poisitions of code
-    pub code_highlighted_positions: Vec<Range<usize>>,
+    /// If no code is matched, this field is None
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code_snippet: Option<Snippet>,
     /// Number of likes
     ///
     /// Used for hot scoring
@@ -55,6 +66,7 @@ pub struct SearchedArticleInfo {
 pub struct AdvanceSearchOptions {
     pub sort_by: SearchSortBy,
     pub search_field: SearchField,
+    pub use_complex_search: bool,
 }
 
 /// The search result is sorted by ...

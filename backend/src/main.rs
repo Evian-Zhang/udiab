@@ -3,23 +3,17 @@ use actix_web::{
     web::{self, Query},
     App, HttpResponse, HttpServer, Responder,
 };
-use search_base::ProjectDocument;
-use tantivy::{query::QueryParser, IndexReader};
 
 mod config;
 mod interfaces;
 mod model;
 
 use interfaces::*;
-
-struct AppState {
-    reader: IndexReader,
-    project_document: ProjectDocument,
-}
+use model::UdiabModel;
 
 #[get("/key_hints")]
 async fn get_key_hints(
-    app_state: web::Data<AppState>,
+    udiab_model: web::Data<UdiabModel>,
     Query(key_hints_request): Query<KeyHintsRequest>,
 ) -> Result<impl Responder, UserError> {
     Ok(HttpResponse::Ok()
@@ -29,29 +23,25 @@ async fn get_key_hints(
 
 #[get("/retrieved_info")]
 async fn get_retrieved_info(
-    app_state: web::Data<AppState>,
+    udiab_model: web::Data<UdiabModel>,
     Query(retrieve_info_request): Query<RetrievedInfoRequest>,
 ) -> Result<impl Responder, UserError> {
-    let searcher = app_state.reader.searcher();
-
-    let query_parser = QueryParser::for_index(
-        searcher.index(),
-        retrieve_info_request
-            .advanced_search_options
-            .search_field
-            .tantivy_fields(app_state.project_document),
-    );
-    Ok(HttpResponse::Ok().content_type("application/json").body(
-        serde_json::to_string(&RetrievedInfoResponse {
-            article_infos: vec![],
-        })
-        .unwrap(),
-    ))
+    let RetrievedInfoRequest {
+        key,
+        advanced_search_options,
+        offset,
+        page_size,
+    } = retrieve_info_request;
+    let article_infos =
+        udiab_model.get_retrieved_info(key, advanced_search_options, offset, page_size)?;
+    Ok(HttpResponse::Ok()
+        .content_type("application/json")
+        .body(serde_json::to_string(&RetrievedInfoResponse { article_infos }).unwrap()))
 }
 
 #[get("/top_info")]
-async fn get_top_info(app_state: web::Data<AppState>) -> Result<impl Responder, UserError> {
-    let top_article_infos = model::get_top_info(&app_state.reader, &app_state.project_document)?;
+async fn get_top_info(udiab_model: web::Data<UdiabModel>) -> Result<impl Responder, UserError> {
+    let top_article_infos = udiab_model.get_top_info()?;
     Ok(HttpResponse::Ok()
         .content_type("application/json")
         .body(serde_json::to_string(&TopArticleInfoResponse { top_article_infos }).unwrap()))
@@ -66,7 +56,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new().service(
             web::scope("/api")
-                .app_data(web::Data::new(AppState {
+                .app_data(web::Data::new(UdiabModel {
                     reader: reader.clone(),
                     project_document: project_document.clone(),
                 }))
