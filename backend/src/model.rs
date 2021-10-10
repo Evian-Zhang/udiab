@@ -6,6 +6,7 @@ use super::interfaces::{
 use cang_jie::CANG_JIE;
 use chrono::{Duration, Utc};
 use search_base::ProjectDocument;
+use std::convert::Into;
 use tantivy::collector::TopDocs;
 use tantivy::{
     query::{BooleanQuery, PhraseQuery, Query, QueryParser, RangeQuery, TermQuery},
@@ -112,6 +113,7 @@ fn from_doc_address_to_searched_article_info(
         url,
         likes,
         time,
+        address: doc_address.into(),
     })
 }
 

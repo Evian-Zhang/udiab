@@ -8,6 +8,11 @@ export interface Snippet {
     highlightedPositions: BackendRange[]
 }
 
+export interface DocAddress {
+    segmentOrd: number,
+    docId: number
+}
+
 /**
  * Article info structure used for searching
  */
@@ -23,7 +28,9 @@ export interface SearchedArticleInfo {
     /** number of likes */
     likes: number,
     /** time of article. UTC millisecond */
-    time: number
+    time: number,
+    /** doc address for backend, used for more-like-this-query */
+    address: DocAddress
 }
 
 export enum SearchSortBy {

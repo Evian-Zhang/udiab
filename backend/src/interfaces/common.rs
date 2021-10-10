@@ -8,9 +8,9 @@ use chrono::{serde::ts_milliseconds::serialize as to_milli_ts, DateTime, Utc};
 use derive_more::Display;
 use search_base::ProjectDocument;
 use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
+use std::convert::{From, TryFrom};
 use std::ops::Range;
-use tantivy::{error::TantivyError, schema::Field};
+use tantivy::{error::TantivyError, schema::Field, DocAddress};
 
 /// Max length of title and/or title snippet (in UTF-8 chars)
 pub const MAX_TITLE_LENGTH: usize = 32;
@@ -33,6 +33,42 @@ pub struct Snippet {
     ///
     /// This field may be empty if no snippet is matched
     pub highlighted_positions: Vec<Range<usize>>,
+}
+
+/// The same structure as [`tantivy::DocAddress`].
+///
+/// Tantivy's `DocAddress` does not implement `Serialize` trait.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UdiabDocAddress {
+    pub segment_ord: u32,
+    pub doc_id: u32,
+}
+
+impl From<DocAddress> for UdiabDocAddress {
+    fn from(doc_address: DocAddress) -> Self {
+        let DocAddress {
+            segment_ord,
+            doc_id,
+        } = doc_address;
+        Self {
+            segment_ord,
+            doc_id,
+        }
+    }
+}
+
+impl From<UdiabDocAddress> for DocAddress {
+    fn from(udiab_doc_address: UdiabDocAddress) -> Self {
+        let UdiabDocAddress {
+            segment_ord,
+            doc_id,
+        } = udiab_doc_address;
+        Self {
+            segment_ord,
+            doc_id,
+        }
+    }
 }
 
 /// Article structure used for searching
@@ -62,6 +98,8 @@ pub struct SearchedArticleInfo {
     /// In format of milliseconds in UTC
     #[serde(serialize_with = "to_milli_ts")]
     pub time: DateTime<Utc>,
+    /// Doc address
+    pub address: UdiabDocAddress,
 }
 
 #[derive(Deserialize)]
