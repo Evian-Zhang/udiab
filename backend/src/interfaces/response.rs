@@ -5,7 +5,7 @@ use super::common::*;
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct KeyHintsResponse {
-    pub key_hints: Vec<String>,
+    pub key_hints: Vec<Snippet>,
 }
 
 #[derive(Serialize)]

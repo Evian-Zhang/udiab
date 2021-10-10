@@ -21,6 +21,9 @@ pub const MAX_BODY_LENGTH: usize = 256;
 /// Max length of code snippet (in UTF-8 chars)
 pub const MAX_CODE_LENGTH: usize = 256;
 
+/// Max count of key hints
+pub const MAX_KEY_HINTS_COUNT: usize = 8;
+
 /// Snippet
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]

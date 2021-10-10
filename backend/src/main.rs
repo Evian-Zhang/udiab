@@ -16,9 +16,10 @@ async fn get_key_hints(
     udiab_model: web::Data<UdiabModel>,
     Query(key_hints_request): Query<KeyHintsRequest>,
 ) -> Result<impl Responder, UserError> {
+    let key_hints = udiab_model.get_key_hints(key_hints_request.key)?;
     Ok(HttpResponse::Ok()
         .content_type("application/json")
-        .body(serde_json::to_string(&KeyHintsResponse { key_hints: vec![] }).unwrap()))
+        .body(serde_json::to_string(&KeyHintsResponse { key_hints }).unwrap()))
 }
 
 #[get("/retrieved_info")]

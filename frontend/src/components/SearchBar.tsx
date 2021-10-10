@@ -1,9 +1,44 @@
 import React, { useState } from 'react'
 import { Input, List, Switch, Space, Select, message } from 'antd'
-import { fetchKeyHints, isSearchKeyValid, SearchSortBy, AdvanceSearchOptions, SearchField } from '../util';
+import { fetchKeyHints, isSearchKeyValid, SearchSortBy, AdvanceSearchOptions, SearchField, Snippet, BackendRange } from '../util';
 import debounce from 'debounce'
 
 const { Search } = Input;
+
+function HighlightText(props: { text: string }) {
+    return(
+        <b>
+            {props.text}
+        </b>
+    );
+}
+
+function composeSnippetHighlight(snippet: string, highlightPositions: BackendRange[]) {
+    let textList = [];
+    let unhighlightedStartIndex = 0;
+    // according to <https://developer.mozilla.org/en-US/docs/web/javascript/reference/global_objects/string/slice>
+    // > If `beginIndex` is greater than or equal to `str.length`, an empty string is returned.
+    // > If `endIndex` is greater than `str.length`, `slice()` also extracts to the end of the string.
+    for (const highlightPosition of highlightPositions) {
+        const unhighlightedSegment = snippet.slice(unhighlightedStartIndex, highlightPosition.start);
+        if (unhighlightedSegment.length > 0) {
+            textList.push(unhighlightedSegment);
+        }
+        const highlightedSegment = snippet.slice(highlightPosition.start, highlightPosition.end);
+        if (unhighlightedSegment.length > 0) {
+            const highlightedComponent = <HighlightText text={highlightedSegment} key={`${highlightPosition.start}-${snippet.slice(0, 16)}`}/>;
+            textList.push(highlightedComponent);
+        }
+        unhighlightedStartIndex = highlightPosition.end;
+    }
+    const unhighlightedSegment = snippet.slice(unhighlightedStartIndex);
+    if (unhighlightedSegment.length > 0) {
+        textList.push(unhighlightedSegment);
+    }
+    return (
+        <>{textList}</>
+    );
+}
 
 let latestKeyHintsFetchedTimestamp = 0;
 
@@ -16,7 +51,7 @@ interface SearchBarProps {
 }
 
 function SearchBar(props: SearchBarProps) {
-    const [keyHints, setKeyHints] = useState<string[]>([]);
+    const [keyHints, setKeyHints] = useState<Snippet[]>([]);
     const [willUseAdvancedSearch, setWillUseAdvancedSearch] = useState(false);
 
     const advancedSearchVisiblity = willUseAdvancedSearch ? "visible" : "hidden";
@@ -151,7 +186,7 @@ function SearchBar(props: SearchBarProps) {
                 dataSource={keyHints}
                 renderItem={keyHint =>(
                     <List.Item>
-                        {keyHint}
+                        {composeSnippetHighlight(keyHint.fragments, keyHint.highlightedPositions)}
                     </List.Item>
                 )}
             />}

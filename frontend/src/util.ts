@@ -66,14 +66,14 @@ function isSearchKeyValid(searchKey: string): boolean {
 }
 
 interface KeyHintsResponse {
-    keyHints: string[]
+    keyHints: Snippet[]
 }
 
 function isKeyHintsResponse(object: any): object is KeyHintsResponse {
     return 'keyHints' in object
 }
 
-async function fetchKeyHints(key: string, timestamp: number): Promise<[string[], number]> {
+async function fetchKeyHints(key: string, timestamp: number): Promise<[Snippet[], number]> {
     let api = new URL(`${window.location.origin}/api/key_hints`);
     api.search = (new URLSearchParams({ key: key })).toString();
     const keyHintsResponse = await fetch(api.toString(), {

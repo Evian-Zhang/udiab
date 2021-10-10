@@ -1,6 +1,7 @@
 use super::interfaces::{
     AdvanceSearchOptions, SearchSortBy, SearchedArticleInfo, Snippet, TopArticleInfo, UserError,
-    MAX_BODY_LENGTH, MAX_CODE_LENGTH, MAX_TITLE_LENGTH, TOP_ARTICLE_INFOS_COUNT,
+    MAX_BODY_LENGTH, MAX_CODE_LENGTH, MAX_KEY_HINTS_COUNT, MAX_TITLE_LENGTH,
+    TOP_ARTICLE_INFOS_COUNT,
 };
 use cang_jie::CANG_JIE;
 use chrono::{Duration, Utc};
@@ -115,6 +116,44 @@ fn from_doc_address_to_searched_article_info(
 }
 
 impl UdiabModel {
+    /// Get key hints
+    ///
+    /// For now, we just start a query for title field.
+    ///
+    /// The returned snippets count will not exceed [`MAX_KEY_HINTS_COUNT`]
+    pub fn get_key_hints(&self, key: String) -> Result<Vec<Snippet>, UserError> {
+        let searcher = self.reader.searcher();
+
+        let query_parser =
+            QueryParser::for_index(&searcher.index(), vec![self.project_document.title]);
+
+        let query = query_parser.parse_query(&key).map_err(|tantivy_error| {
+            UserError::UnexpectedTantivy {
+                tantivy_error: tantivy_error.into(),
+            }
+        })?;
+
+        let mut snippet_generator =
+            SnippetGenerator::create(&searcher, &query, self.project_document.title)
+                .map_err(|tantivy_error| UserError::UnexpectedTantivy { tantivy_error })?;
+        snippet_generator.set_max_num_chars(MAX_TITLE_LENGTH);
+        let snippets = searcher
+            .search(&query, &TopDocs::with_limit(MAX_KEY_HINTS_COUNT))
+            .map_err(|tantivy_error| UserError::UnexpectedTantivy { tantivy_error })?
+            .into_iter()
+            .map(|(_, doc_address)| {
+                let doc = searcher
+                    .doc(doc_address)
+                    .map_err(|tantivy_error| UserError::UnexpectedTantivy { tantivy_error })?;
+                let snippet = snippet_generator.snippet_from_doc(&doc);
+                Ok(Snippet {
+                    fragments: snippet.fragments().to_string(),
+                    highlighted_positions: snippet.highlighted().to_vec(),
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(snippets)
+    }
     /// Get searched article info
     pub fn get_retrieved_info(
         &self,
