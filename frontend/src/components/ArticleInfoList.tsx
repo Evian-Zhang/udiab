@@ -1,7 +1,5 @@
 import React from 'react';
 import { Button, List, Spin } from 'antd';
-import { SearchedArticleInfo } from '../util'
-import ArticleInfoCard from './ArticleInfoCard'
 
 export enum LoadingStatus {
     Loading,
