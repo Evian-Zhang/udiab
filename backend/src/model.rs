@@ -1,7 +1,7 @@
 use super::interfaces::{
-    AdvanceSearchOptions, SearchSortBy, SearchedArticleInfo, Snippet, TopArticleInfo, UserError,
-    MAX_BODY_LENGTH, MAX_CODE_LENGTH, MAX_KEY_HINTS_COUNT, MAX_TITLE_LENGTH,
-    TOP_ARTICLE_INFOS_COUNT,
+    AdvanceSearchOptions, MoreLikeThisArticleInfo, SearchSortBy, SearchedArticleInfo, Snippet,
+    TopArticleInfo, UdiabDocAddress, UserError, MAX_BODY_LENGTH, MAX_CODE_LENGTH,
+    MAX_KEY_HINTS_COUNT, MAX_TITLE_LENGTH, TOP_ARTICLE_INFOS_COUNT,
 };
 use cang_jie::CANG_JIE;
 use chrono::{Duration, Utc};
@@ -9,7 +9,9 @@ use search_base::ProjectDocument;
 use std::convert::Into;
 use tantivy::collector::TopDocs;
 use tantivy::{
-    query::{BooleanQuery, PhraseQuery, Query, QueryParser, RangeQuery, TermQuery},
+    query::{
+        BooleanQuery, MoreLikeThisQuery, PhraseQuery, Query, QueryParser, RangeQuery, TermQuery,
+    },
     schema::IndexRecordOption,
     DocAddress, IndexReader, Searcher, SnippetGenerator, Term,
 };
@@ -383,5 +385,85 @@ impl UdiabModel {
             })
             .collect::<Result<Vec<_>, _>>()?;
         Ok(top_article_infos)
+    }
+
+    /// Get articles more like this article
+    pub fn get_more_like_this(
+        &self,
+        address: UdiabDocAddress,
+        offset: usize,
+        page_size: usize,
+    ) -> Result<Vec<MoreLikeThisArticleInfo>, UserError> {
+        let ProjectDocument {
+            title: title_field,
+            body: body_field,
+            url: url_field,
+            likes: likes_field,
+            time: time_field,
+            ..
+        } = self.project_document;
+        let doc_address: DocAddress = address.into();
+        let searcher = self.reader.searcher();
+        let query = MoreLikeThisQuery::builder().with_document(doc_address);
+        let search_collector = TopDocs::with_limit(page_size).and_offset(offset);
+        let docs_more_like_this = searcher
+            .search(&query, &search_collector)
+            .map_err(|tantivy_error| UserError::UnexpectedTantivy { tantivy_error })?;
+        let more_like_this_article_infos = docs_more_like_this
+            .into_iter()
+            .map(|(_, doc_address)| {
+                let doc = searcher
+                    .doc(doc_address)
+                    .map_err(|tantivy_error| UserError::UnexpectedTantivy { tantivy_error })?;
+                let mut title = None;
+                let mut url = None;
+                let mut body = None;
+                let mut time = None;
+                let mut likes = None;
+                for field_value in doc.field_values() {
+                    match field_value.field() {
+                        field if field == title_field => title = field_value.value().text(),
+                        field if field == url_field => url = field_value.value().text(),
+                        field if field == body_field => body = field_value.value().text(),
+                        field if field == likes_field => likes = field_value.value().u64_value(),
+                        field if field == time_field => time = field_value.value().date_value(),
+                        _ => {}
+                    }
+                }
+                let title = if let Some(title) = title {
+                    title.chars().take(MAX_TITLE_LENGTH).collect::<String>()
+                } else {
+                    return Err(UserError::Unexpected(format!("Can't find title field")));
+                };
+                let body = if let Some(body) = body {
+                    body.chars().take(MAX_BODY_LENGTH).collect::<String>()
+                } else {
+                    return Err(UserError::Unexpected(format!("Can't find body field")));
+                };
+                let url = if let Some(url) = url {
+                    url.to_string()
+                } else {
+                    return Err(UserError::Unexpected(format!("Can't find url field")));
+                };
+                let likes = if let Some(likes) = likes {
+                    likes
+                } else {
+                    return Err(UserError::Unexpected(format!("Can't find likes field")));
+                };
+                let time = if let Some(time) = time {
+                    *time
+                } else {
+                    return Err(UserError::Unexpected(format!("Can't find time field")));
+                };
+                Ok(MoreLikeThisArticleInfo {
+                    url,
+                    title,
+                    body,
+                    likes,
+                    time,
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(more_like_this_article_infos)
     }
 }

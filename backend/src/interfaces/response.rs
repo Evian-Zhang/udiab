@@ -19,3 +19,9 @@ pub struct RetrievedInfoResponse {
 pub struct TopArticleInfoResponse {
     pub top_article_infos: Vec<TopArticleInfo>,
 }
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MoreLikeThisResponse {
+    pub more_like_this_article_infos: Vec<MoreLikeThisArticleInfo>,
+}

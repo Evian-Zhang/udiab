@@ -48,6 +48,24 @@ async fn get_top_info(udiab_model: web::Data<UdiabModel>) -> Result<impl Respond
         .body(serde_json::to_string(&TopArticleInfoResponse { top_article_infos }).unwrap()))
 }
 
+#[get("/more_like_this")]
+async fn get_more_like_this(
+    udiab_model: web::Data<UdiabModel>,
+    Query(more_like_this_request): Query<MoreLikeThisRequest>,
+) -> Result<impl Responder, UserError> {
+    let more_like_this_article_infos = udiab_model.get_more_like_this(
+        more_like_this_request.address,
+        more_like_this_request.offset,
+        more_like_this_request.page_size,
+    )?;
+    Ok(HttpResponse::Ok().content_type("application/json").body(
+        serde_json::to_string(&MoreLikeThisResponse {
+            more_like_this_article_infos,
+        })
+        .unwrap(),
+    ))
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config = config::Config::retrieve_config();
@@ -62,7 +80,9 @@ async fn main() -> std::io::Result<()> {
                     project_document: project_document.clone(),
                 }))
                 .service(get_key_hints)
-                .service(get_retrieved_info),
+                .service(get_retrieved_info)
+                .service(get_top_info)
+                .service(get_more_like_this),
         )
     })
     .bind((config.host.as_str(), config.port))?

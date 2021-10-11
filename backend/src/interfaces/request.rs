@@ -17,3 +17,11 @@ pub struct RetrievedInfoRequest {
     pub offset: usize,
     pub page_size: usize,
 }
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MoreLikeThisRequest {
+    pub address: UdiabDocAddress,
+    pub offset: usize,
+    pub page_size: usize,
+}

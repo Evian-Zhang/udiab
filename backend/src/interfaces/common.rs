@@ -38,7 +38,7 @@ pub struct Snippet {
 /// The same structure as [`tantivy::DocAddress`].
 ///
 /// Tantivy's `DocAddress` does not implement `Serialize` trait.
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UdiabDocAddress {
     pub segment_ord: u32,
@@ -192,6 +192,25 @@ pub struct TopArticleInfo {
     pub title: String,
     /// Number of likes
     pub likes: u64,
+}
+
+/// Article structure used for more like this query
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MoreLikeThisArticleInfo {
+    /// URL of article
+    pub url: String,
+    /// Title of article
+    pub title: String,
+    /// Body of article
+    pub body: String,
+    /// Number of likes
+    pub likes: u64,
+    /// Time of this article
+    ///
+    /// In format of milliseconds in UTC
+    #[serde(serialize_with = "to_milli_ts")]
+    pub time: DateTime<Utc>,
 }
 
 /// Errors which will be sent to user
