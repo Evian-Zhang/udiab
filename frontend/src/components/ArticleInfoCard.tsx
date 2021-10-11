@@ -1,8 +1,9 @@
-import React from 'react';
-import { Card, Divider } from 'antd';
+import React, { useState } from 'react';
+import { Card, Divider, Button, Modal, message } from 'antd';
 import { LikeTwoTone, ClockCircleTwoTone } from '@ant-design/icons';
-import { SearchedArticleInfo, BackendRange } from '../util';
-
+import { SearchedArticleInfo, BackendRange, MoreLikeThisArticleInfo, fetchMoreLikeThisInfo } from '../util';
+import ArticleInfoList, { LoadingStatus } from './ArticleInfoList';
+import MoreLikeThisArticleInfoCard from './MoreLikeThisArticleInfoCard';
 
 function HighlightText(props: { text: string }) {
     return(
@@ -44,6 +45,66 @@ interface ArticleInfoCardProps {
 }
 
 function ArticleInfoCard(props: ArticleInfoCardProps) {
+    const [isMoreLikeThisModalVisible, setIsMoreLikeThisModalVisible] = useState(false);
+    const [articleInfos, setArticleInfos] = useState<MoreLikeThisArticleInfo[]>([]);
+    // loading status of articles info list
+    const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.ReadyToLoad);
+    const [offset, setOffset] = useState(0);
+    const PAGE_SIZE = 10;
+
+    function onMoreLikeThisModalOkButtonPressed() {
+        setIsMoreLikeThisModalVisible(false)
+    }
+
+    function onMoreLikeThisModalLoadMore() {
+        if (loadingStatus !== LoadingStatus.ReadyToLoad) {
+            return;
+          }
+        setLoadingStatus(LoadingStatus.Loading);
+        fetchMoreLikeThisInfo(props.articleInfo.address, offset, PAGE_SIZE)
+            .then(newMoreLikeThisInfos => {
+                const newArticleInfos = articleInfos.concat(newMoreLikeThisInfos);
+                setArticleInfos(newArticleInfos)
+                setOffset(newArticleInfos.length);
+                if (newMoreLikeThisInfos.length === 0) {
+                    setLoadingStatus(LoadingStatus.NothingToLoad);
+                } else {
+                    setLoadingStatus(LoadingStatus.ReadyToLoad);
+                }
+            })
+            .catch(error => {
+                setLoadingStatus(LoadingStatus.ReadyToLoad);
+                if (error instanceof Error) {
+                    message.error(error.message);
+                } else {
+                    message.error("Unknown error");
+                }
+            });
+    }
+
+    function onMoreLikeThisButtonPressed() {
+        setIsMoreLikeThisModalVisible(true)
+        onMoreLikeThisModalLoadMore();
+        return (
+            <Modal
+                title="Articles more like this"
+                visible={isMoreLikeThisModalVisible}
+                onOk={onMoreLikeThisModalOkButtonPressed}
+            >
+                <ArticleInfoList
+                    articleInfos={articleInfos}
+                    renderItem={articleInfo => (
+                        <MoreLikeThisArticleInfoCard
+                            articleInfo={articleInfo}
+                        />
+                    )}
+                    loadingStatus={loadingStatus}
+                    onLoadMore={onMoreLikeThisModalLoadMore}
+                />
+            </Modal>
+        );
+    }
+
     return(
         <a href={props.articleInfo.url}>
             <Card
@@ -75,6 +136,11 @@ function ArticleInfoCard(props: ArticleInfoCardProps) {
                         <ClockCircleTwoTone />
                         {(new Date(props.articleInfo.time)).toLocaleString()}
                     </div>
+                </div>
+                <div style={{width: "100%"}}>
+                    <Button onClick={onMoreLikeThisButtonPressed}>
+                        Find more articles like this
+                    </Button>
                 </div>
             </Card>
         </a>

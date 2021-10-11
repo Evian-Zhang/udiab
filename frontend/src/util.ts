@@ -188,4 +188,47 @@ async function fetchTopArticleInfos(): Promise<TopArticleInfo[]> {
     }
 }
 
-export { isSearchKeyValid, fetchKeyHints, fetchRetrivedInfo, fetchTopArticleInfos };
+export interface MoreLikeThisArticleInfo {
+    url: string,
+    title: string,
+    body: string,
+    likes: number,
+    time: number
+}
+
+interface MoreLikeThisInfoResponse {
+    moreLikeThisArticleInfos: MoreLikeThisArticleInfo[]
+}
+
+function isMoreLikeThisInfoResponse(object: any): object is MoreLikeThisInfoResponse {
+    return 'moreLikeThisArticleInfos' in object
+}
+
+async function fetchMoreLikeThisInfo(address: DocAddress, offset: number, pageSize: number): Promise<MoreLikeThisArticleInfo[]> {
+    let api = new URL(`${window.location.origin}/api/more_like_this`);
+    api.search = (new URLSearchParams(toString({
+        address: address,
+        offset: offset,
+        pageSize: pageSize,
+    }))).toString();
+    const moreLikeThisInfoResponse = await fetch(api.toString(), {
+        method: 'GET'
+    });
+    if (moreLikeThisInfoResponse.status !== 200) {
+        if (moreLikeThisInfoResponse.status === 500) {
+            const errorMessage = await moreLikeThisInfoResponse.text();
+            if (errorMessage.length !== 0) {
+                throw errorMessage;
+            }
+        }
+        throw new Error(`Unknown error with status code ${moreLikeThisInfoResponse.status}.`);
+    }
+    const fetchedMoreLikeThisInfo = await moreLikeThisInfoResponse.json();
+    if (isMoreLikeThisInfoResponse(fetchedMoreLikeThisInfo)) {
+        return fetchedMoreLikeThisInfo.moreLikeThisArticleInfos;
+    } else {
+        throw new Error('Unknown error.');
+    }
+}
+
+export { isSearchKeyValid, fetchKeyHints, fetchRetrivedInfo, fetchTopArticleInfos, fetchMoreLikeThisInfo };

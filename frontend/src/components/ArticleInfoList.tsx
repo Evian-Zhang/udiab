@@ -9,14 +9,15 @@ export enum LoadingStatus {
     NothingToLoad
 }
 
-interface ArticleInfoListProps {
+interface ArticleInfoListProps<T> {
     // articleInfos is assumed non-empty
-    articleInfos: SearchedArticleInfo[],
+    articleInfos: T[],
+    renderItem: (item: T) => React.ReactNode,
     loadingStatus: LoadingStatus,
     onLoadMore: ()=>void,
 }
 
-function ArticleInfoList(props: ArticleInfoListProps) {
+function ArticleInfoList<T>(props: ArticleInfoListProps<T>) {
     const loadMore = (
         <div
             style={{
@@ -49,9 +50,7 @@ function ArticleInfoList(props: ArticleInfoListProps) {
             dataSource={props.articleInfos}
             renderItem={item => (
                 <List.Item>
-                    <ArticleInfoCard
-                        articleInfo={item}
-                    />
+                    {props.renderItem(item)}
                 </List.Item>
             )}
             loadMore={loadMore}

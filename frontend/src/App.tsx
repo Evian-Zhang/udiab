@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Spin, message } from 'antd';
 import SearchBar from './components/SearchBar';
 import ArticleInfoList, { LoadingStatus } from './components/ArticleInfoList';
+import ArticleInfoCard from './components/ArticleInfoCard'
 import TopArticlesListCard from './components/TopArticlesListCard';
 import { fetchRetrivedInfo, SearchedArticleInfo, AdvanceSearchOptions, TopArticleInfo, fetchTopArticleInfos } from './util';
 
@@ -133,6 +134,11 @@ function App() {
                 >
                   <ArticleInfoList
                     articleInfos={articleInfos}
+                    renderItem={articleInfo => (
+                        <ArticleInfoCard
+                          articleInfo={articleInfo}
+                        />
+                    )}
                     loadingStatus={loadingStatus}
                     onLoadMore={onLoadMore}
                   />
