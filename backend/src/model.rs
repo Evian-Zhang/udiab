@@ -40,28 +40,28 @@ fn from_doc_address_to_searched_article_info(
         .doc(doc_address)
         .map_err(|tantivy_error| UserError::UnexpectedTantivy { tantivy_error })?;
     let title_snippet = title_snippet_generator.snippet_from_doc(&doc);
-    let title_snippet = Snippet {
-        fragments: title_snippet.fragments().to_string(),
-        highlighted_positions: title_snippet.highlighted().to_vec(),
-    };
+    let title_snippet = Snippet::new(
+        title_snippet.fragments().to_string(),
+        title_snippet.highlighted().to_vec(),
+    );
 
     let body_snippet = body_snippet_generator.snippet_from_doc(&doc);
     // If no body snippet is found, returns empty string
     // FIXME: can this branch really exist????
-    let body_snippet = Snippet {
-        fragments: body_snippet.fragments().to_string(),
-        highlighted_positions: body_snippet.highlighted().to_vec(),
-    };
+    let body_snippet = Snippet::new(
+        body_snippet.fragments().to_string(),
+        body_snippet.highlighted().to_vec(),
+    );
 
     let code_snippet = code_snippet_generator.snippet_from_doc(&doc);
     // If no code snippet if found, returns None
     let code_snippet = if code_snippet.fragments().is_empty() {
         None
     } else {
-        Some(Snippet {
-            fragments: code_snippet.fragments().to_string(),
-            highlighted_positions: code_snippet.highlighted().to_vec(),
-        })
+        Some(Snippet::new(
+            code_snippet.fragments().to_string(),
+            code_snippet.highlighted().to_vec(),
+        ))
     };
 
     let mut title = None;
@@ -83,10 +83,10 @@ fn from_doc_address_to_searched_article_info(
     }
     let title_snippet = if title_snippet.fragments.is_empty() {
         if let Some(title) = title {
-            Snippet {
-                fragments: title.chars().take(MAX_TITLE_LENGTH).collect::<String>(),
-                ..title_snippet
-            }
+            Snippet::new(
+                title.chars().take(MAX_TITLE_LENGTH).collect::<String>(),
+                title_snippet.highlighted_positions,
+            )
         } else {
             return Err(UserError::Unexpected(format!("Can't find title field")));
         }
@@ -150,10 +150,10 @@ impl UdiabModel {
                     .doc(doc_address)
                     .map_err(|tantivy_error| UserError::UnexpectedTantivy { tantivy_error })?;
                 let snippet = snippet_generator.snippet_from_doc(&doc);
-                Ok(Snippet {
-                    fragments: snippet.fragments().to_string(),
-                    highlighted_positions: snippet.highlighted().to_vec(),
-                })
+                Ok(Snippet::new(
+                    snippet.fragments().to_string(),
+                    snippet.highlighted().to_vec(),
+                ))
             })
             .collect::<Result<Vec<_>, _>>()?;
         Ok(snippets)

@@ -5,6 +5,12 @@ export interface BackendRange {
 
 export interface Snippet {
     fragments: string,
+    /**
+     * Highlighted positions of snippet
+     * 
+     * The position is indexed in byte (NOT in char code point),
+     * so `TextEncoder` and `TextDecoder` is needed.
+     */
     highlightedPositions: BackendRange[]
 }
 

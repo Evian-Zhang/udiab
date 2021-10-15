@@ -35,6 +35,37 @@ pub struct Snippet {
     pub highlighted_positions: Vec<Range<usize>>,
 }
 
+impl Snippet {
+    /// Create a new snippet from fragments and highlighted positions
+    ///
+    /// The highlighted positions are automatically merged, i.e., 1..2 and 2..3
+    /// are merged as 1..3
+    pub fn new(fragments: String, highlighted_positions: Vec<Range<usize>>) -> Self {
+        let mut merged_highlighted_positions = vec![];
+        let mut last_range: Option<Range<usize>> = None;
+        for highlighted_position in highlighted_positions {
+            if let Some(unwraped_last_range) = last_range {
+                if unwraped_last_range.end == highlighted_position.start {
+                    last_range = Some(unwraped_last_range.start..highlighted_position.end);
+                } else {
+                    merged_highlighted_positions.push(unwraped_last_range);
+                    last_range = None;
+                }
+            } else {
+                last_range = Some(highlighted_position);
+            }
+        }
+        if let Some(last_range) = last_range {
+            merged_highlighted_positions.push(last_range);
+        }
+
+        Self {
+            fragments,
+            highlighted_positions: merged_highlighted_positions,
+        }
+    }
+}
+
 /// The same structure as [`tantivy::DocAddress`].
 ///
 /// Tantivy's `DocAddress` does not implement `Serialize` trait.

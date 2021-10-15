@@ -14,26 +14,29 @@ function HighlightText(props: { text: string }) {
 }
 
 function composeSnippetHighlight(snippet: string, highlightPositions: BackendRange[]) {
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    const encoded_snippet = encoder.encode(snippet);
     let textList = [];
     let unhighlightedStartIndex = 0;
     // according to <https://developer.mozilla.org/en-US/docs/web/javascript/reference/global_objects/string/slice>
     // > If `beginIndex` is greater than or equal to `str.length`, an empty string is returned.
     // > If `endIndex` is greater than `str.length`, `slice()` also extracts to the end of the string.
     for (const highlightPosition of highlightPositions) {
-        const unhighlightedSegment = snippet.slice(unhighlightedStartIndex, highlightPosition.start);
+        const unhighlightedSegment = encoded_snippet.slice(unhighlightedStartIndex, highlightPosition.start);
         if (unhighlightedSegment.length > 0) {
-            textList.push(unhighlightedSegment);
+            textList.push(decoder.decode(unhighlightedSegment));
         }
-        const highlightedSegment = snippet.slice(highlightPosition.start, highlightPosition.end);
+        const highlightedSegment = encoded_snippet.slice(highlightPosition.start, highlightPosition.end);
         if (unhighlightedSegment.length > 0) {
-            const highlightedComponent = <HighlightText text={highlightedSegment} key={`${highlightPosition.start}-${snippet.slice(0, 16)}`}/>;
+            const highlightedComponent = <HighlightText text={decoder.decode(highlightedSegment)} key={`${highlightPosition.start}-${snippet.slice(0, 16)}`}/>;
             textList.push(highlightedComponent);
         }
         unhighlightedStartIndex = highlightPosition.end;
     }
-    const unhighlightedSegment = snippet.slice(unhighlightedStartIndex);
+    const unhighlightedSegment = encoded_snippet.slice(unhighlightedStartIndex);
     if (unhighlightedSegment.length > 0) {
-        textList.push(unhighlightedSegment);
+        textList.push(decoder.decode(unhighlightedSegment));
     }
     return (
         <>{textList}</>
