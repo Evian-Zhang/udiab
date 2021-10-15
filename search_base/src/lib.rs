@@ -30,7 +30,7 @@ fn schema() -> (Schema, ProjectDocument) {
         TextOptions::default().set_stored().set_indexing_options(
             TextFieldIndexing::default()
                 .set_tokenizer(CANG_JIE)
-                .set_index_option(IndexRecordOption::Basic),
+                .set_index_option(IndexRecordOption::WithFreqsAndPositions),
         ),
     );
 

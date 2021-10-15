@@ -467,3 +467,7 @@ impl UdiabModel {
         Ok(more_like_this_article_infos)
     }
 }
+
+#[cfg(test)]
+#[path = "./model_test.rs"]
+mod model_test;

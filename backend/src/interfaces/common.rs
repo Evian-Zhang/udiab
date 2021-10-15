@@ -25,7 +25,7 @@ pub const MAX_CODE_LENGTH: usize = 256;
 pub const MAX_KEY_HINTS_COUNT: usize = 8;
 
 /// Snippet
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Snippet {
     pub fragments: String,
@@ -38,7 +38,7 @@ pub struct Snippet {
 /// The same structure as [`tantivy::DocAddress`].
 ///
 /// Tantivy's `DocAddress` does not implement `Serialize` trait.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UdiabDocAddress {
     pub segment_ord: u32,
@@ -72,7 +72,7 @@ impl From<UdiabDocAddress> for DocAddress {
 }
 
 /// Article structure used for searching
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchedArticleInfo {
     /// URL of article
@@ -183,7 +183,7 @@ impl SearchField {
 pub const TOP_ARTICLE_INFOS_COUNT: usize = 10;
 
 /// Article structure used for today's top
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TopArticleInfo {
     /// URL of article
@@ -195,7 +195,7 @@ pub struct TopArticleInfo {
 }
 
 /// Article structure used for more like this query
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct MoreLikeThisArticleInfo {
     /// URL of article
