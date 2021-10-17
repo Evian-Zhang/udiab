@@ -1,0 +1,7 @@
+.DS_Store
+*.dockerignore
+*Dockerfile
+!backend
+!search_base
+!Cargo.toml
+!Cargo.lock
