@@ -14,5 +14,5 @@ docker build -t frontend .
 在项目根目录：
 
 ```sh
-DOCKER_BIULDKIT=1 docker build -f backend.Dockerfile -t backend .
+DOCKER_BUILDKIT=1 docker build -f backend.Dockerfile -t backend .
 ```
