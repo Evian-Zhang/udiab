@@ -62,7 +62,7 @@ function ArticleInfoCard(props: ArticleInfoCardProps) {
     function onMoreLikeThisModalLoadMore() {
         if (loadingStatus !== LoadingStatus.ReadyToLoad) {
             return;
-          }
+        }
         setLoadingStatus(LoadingStatus.Loading);
         fetchMoreLikeThisInfo(props.articleInfo.address, offset, PAGE_SIZE)
             .then(newMoreLikeThisInfos => {
@@ -88,65 +88,66 @@ function ArticleInfoCard(props: ArticleInfoCardProps) {
     function onMoreLikeThisButtonPressed() {
         setIsMoreLikeThisModalVisible(true)
         onMoreLikeThisModalLoadMore();
-        return (
-            <Modal
-                title="Articles more like this"
-                visible={isMoreLikeThisModalVisible}
-                onOk={onMoreLikeThisModalOkButtonPressed}
-            >
-                <ArticleInfoList
-                    articleInfos={articleInfos}
-                    renderItem={articleInfo => (
-                        <MoreLikeThisArticleInfoCard
-                            articleInfo={articleInfo}
-                        />
-                    )}
-                    loadingStatus={loadingStatus}
-                    onLoadMore={onMoreLikeThisModalLoadMore}
-                />
-            </Modal>
-        );
     }
 
     return(
-        <a href={props.articleInfo.url}>
-            <Card
-                hoverable
-                title={composeSnippetHighlight(props.articleInfo.titleSnippet.fragments, props.articleInfo.titleSnippet.highlightedPositions)}
-                style={{width: "100%"}}
-            >
-                <div style={{width: "100%"}}>
-                    {composeSnippetHighlight(props.articleInfo.bodySnippet.fragments, props.articleInfo.bodySnippet.highlightedPositions)}
+        <>
+        <Card
+            hoverable
+            title={
+                <a href={props.articleInfo.url}>
+                {composeSnippetHighlight(props.articleInfo.titleSnippet.fragments, props.articleInfo.titleSnippet.highlightedPositions)}
+                </a>}
+            style={{width: "100%"}}
+        >
+            <div style={{width: "100%"}}>
+                {composeSnippetHighlight(props.articleInfo.bodySnippet.fragments, props.articleInfo.bodySnippet.highlightedPositions)}
+            </div>
+            {
+                props.articleInfo.codeSnippet &&
+                <>
+                    <Divider/>
+                    <Card type="inner" title="Code snippet">
+                        <pre><code>
+                            {composeSnippetHighlight(props.articleInfo.codeSnippet.fragments, props.articleInfo.codeSnippet.highlightedPositions)}
+                        </code></pre>
+                    </Card>
+                </>
+            }
+            <Divider/>
+            <div style={{width: "100%"}}>
+                <div style={{float: 'left'}}>
+                    <LikeTwoTone />
+                    {props.articleInfo.likes}
                 </div>
-                {
-                    props.articleInfo.codeSnippet &&
-                    <>
-                        <Divider/>
-                        <Card type="inner" title="Code snippet">
-                            <pre><code>
-                                {composeSnippetHighlight(props.articleInfo.codeSnippet.fragments, props.articleInfo.codeSnippet.highlightedPositions)}
-                            </code></pre>
-                        </Card>
-                    </>
-                }
-                <Divider/>
-                <div style={{width: "100%"}}>
-                    <div style={{float: 'left'}}>
-                        <LikeTwoTone />
-                        {props.articleInfo.likes}
-                    </div>
-                    <div style={{float: 'right'}}>
-                        <ClockCircleTwoTone />
-                        {(new Date(props.articleInfo.time)).toLocaleString()}
-                    </div>
+                <div style={{float: 'right'}}>
+                    <ClockCircleTwoTone />
+                    {(new Date(props.articleInfo.time)).toLocaleString()}
                 </div>
-                <div style={{width: "100%"}}>
-                    <Button onClick={onMoreLikeThisButtonPressed}>
-                        Find more articles like this
-                    </Button>
-                </div>
-            </Card>
-        </a>
+            </div>
+            <div style={{width: "100%"}}>
+                <Button onClick={onMoreLikeThisButtonPressed}>
+                    Find more articles like this
+                </Button>
+            </div>
+        </Card>
+        <Modal
+            title="Articles more like this"
+            visible={isMoreLikeThisModalVisible}
+            onOk={onMoreLikeThisModalOkButtonPressed}
+        >
+            <ArticleInfoList
+                articleInfos={articleInfos}
+                renderItem={articleInfo => (
+                    <MoreLikeThisArticleInfoCard
+                        articleInfo={articleInfo}
+                    />
+                )}
+                loadingStatus={loadingStatus}
+                onLoadMore={onMoreLikeThisModalLoadMore}
+            />
+        </Modal>
+        </>
     );
 }
 
