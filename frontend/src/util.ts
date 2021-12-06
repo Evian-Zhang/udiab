@@ -79,7 +79,8 @@ function isSearchKeyValid(searchKey: string): boolean {
 }
 
 interface KeyHintsResponse {
-    keyHints: Snippet[]
+    keyHints: Snippet[],
+    duration: number
 }
 
 function isKeyHintsResponse(object: any): object is KeyHintsResponse {
@@ -103,6 +104,7 @@ async function fetchKeyHints(key: string, timestamp: number): Promise<[Snippet[]
     }
     const fetchedKeyHints = await keyHintsResponse.json();
     if (isKeyHintsResponse(fetchedKeyHints)) {
+        console.log(`Fetch hints for key ${key} with ${fetchedKeyHints.duration} milliseconds used.`);
         return [fetchedKeyHints.keyHints, timestamp];
     } else {
         throw new Error('Unknown error.');
@@ -110,7 +112,8 @@ async function fetchKeyHints(key: string, timestamp: number): Promise<[Snippet[]
 }
 
 interface RetrievedInfoResponse {
-    articleInfos: SearchedArticleInfo[]
+    articleInfos: SearchedArticleInfo[],
+    duration: number
 }
 
 function isRetrievedInfoResponse(object: any): object is RetrievedInfoResponse {
@@ -152,6 +155,7 @@ async function fetchRetrivedInfo(key: string, advanceSearchOptions: AdvanceSearc
     }
     const fetchedRetrievedInfo = await retrievedInfoResponse.json();
     if (isRetrievedInfoResponse(fetchedRetrievedInfo)) {
+        console.log(`Fetch retrieved info for key ${key} with ${fetchedRetrievedInfo.duration} milliseconds used.`);
         return fetchedRetrievedInfo.articleInfos;
     } else {
         throw new Error('Unknown error.');
@@ -165,7 +169,8 @@ export interface TopArticleInfo {
 }
 
 interface TopInfoResponse {
-    topArticleInfos: TopArticleInfo[]
+    topArticleInfos: TopArticleInfo[],
+    duration: number,
 }
 
 function isTopInfoResponse(object: any): object is TopInfoResponse {
@@ -188,6 +193,7 @@ async function fetchTopArticleInfos(): Promise<TopArticleInfo[]> {
     }
     const fetchedTopInfo = await topInfoResponse.json();
     if (isTopInfoResponse(fetchedTopInfo)) {
+        console.log(`Fetch top article infos with ${fetchedTopInfo.duration} milliseconds used.`);
         return fetchedTopInfo.topArticleInfos;
     } else {
         throw new Error('Unknown error.');
@@ -203,7 +209,8 @@ export interface MoreLikeThisArticleInfo {
 }
 
 interface MoreLikeThisInfoResponse {
-    moreLikeThisArticleInfos: MoreLikeThisArticleInfo[]
+    moreLikeThisArticleInfos: MoreLikeThisArticleInfo[],
+    duration: number
 }
 
 function isMoreLikeThisInfoResponse(object: any): object is MoreLikeThisInfoResponse {
@@ -231,6 +238,7 @@ async function fetchMoreLikeThisInfo(address: DocAddress, offset: number, pageSi
     }
     const fetchedMoreLikeThisInfo = await moreLikeThisInfoResponse.json();
     if (isMoreLikeThisInfoResponse(fetchedMoreLikeThisInfo)) {
+        console.log(`Fetch more like this with ${fetchedMoreLikeThisInfo.duration} milliseconds used.`);
         return fetchedMoreLikeThisInfo.moreLikeThisArticleInfos;
     } else {
         throw new Error('Unknown error.');
