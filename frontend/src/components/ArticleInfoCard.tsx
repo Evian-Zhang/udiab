@@ -80,7 +80,7 @@ function ArticleInfoCard(props: ArticleInfoCardProps) {
                 if (error instanceof Error) {
                     message.error(error.message);
                 } else {
-                    message.error("Unknown error");
+                    message.error("未知错误");
                 }
             });
     }
@@ -107,7 +107,7 @@ function ArticleInfoCard(props: ArticleInfoCardProps) {
                 props.articleInfo.codeSnippet &&
                 <>
                     <Divider/>
-                    <Card type="inner" title="Code snippet">
+                    <Card type="inner" title="代码片段">
                         <pre><code>
                             {composeSnippetHighlight(props.articleInfo.codeSnippet.fragments, props.articleInfo.codeSnippet.highlightedPositions)}
                         </code></pre>
@@ -127,12 +127,12 @@ function ArticleInfoCard(props: ArticleInfoCardProps) {
             </div>
             <div style={{width: "100%"}}>
                 <Button onClick={onMoreLikeThisButtonPressed}>
-                    Find more articles like this
+                    检索更多相似文章
                 </Button>
             </div>
         </Card>
         <Modal
-            title="Articles more like this"
+            title="与此相似的文章"
             visible={isMoreLikeThisModalVisible}
             onOk={onMoreLikeThisModalOkButtonPressed}
         >

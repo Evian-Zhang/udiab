@@ -28,7 +28,7 @@ function App() {
         if (error instanceof Error) {
           message.error(error.message);
         } else {
-          message.error("Unknown error");
+          message.error("未知错误");
         }
       });
   }, []);
@@ -50,7 +50,7 @@ function App() {
         if (error instanceof Error) {
           message.error(error.message);
         } else {
-          message.error("Unknown error");
+          message.error("未知错误");
         }
       });
   }
@@ -76,7 +76,7 @@ function App() {
         if (error instanceof Error) {
           message.error(error.message);
         } else {
-          message.error("Unknown error");
+          message.error("未知错误");
         }
       });
   }
@@ -145,7 +145,7 @@ function App() {
                 </div>
               :
                 <h2>
-                  No Result Found!
+                  未找到结果！
                 </h2>
           )}
         </div>

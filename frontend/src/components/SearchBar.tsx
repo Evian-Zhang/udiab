@@ -71,7 +71,7 @@ function SearchBar(props: SearchBarProps) {
                 if (error instanceof Error) {
                   message.error(error.message);
                 } else {
-                  message.error("Unknown error");
+                  message.error("未知错误");
                 }
             });
     }, 1000);
@@ -114,15 +114,15 @@ function SearchBar(props: SearchBarProps) {
                             style={{width: "auto"}}
                             options={[
                                 {
-                                    label: "Time",
+                                    label: "时间",
                                     value: SearchSortBy.Time
                                 },
                                 {
-                                    label: "Hot",
+                                    label: "热度",
                                     value: SearchSortBy.Hot
                                 },
                                 {
-                                    label: "Relevance",
+                                    label: "相关性",
                                     value: SearchSortBy.Relevance
                                 }
                             ]}
@@ -141,15 +141,15 @@ function SearchBar(props: SearchBarProps) {
                             style={{width: "auto"}}
                             options={[
                                 {
-                                    label: "Title",
+                                    label: "标题",
                                     value: SearchField.Title
                                 },
                                 {
-                                    label: "Code",
+                                    label: "代码",
                                     value: SearchField.Code
                                 },
                                 {
-                                    label: "All",
+                                    label: "全部",
                                     value: SearchField.All
                                 }
                             ]}
@@ -176,7 +176,7 @@ function SearchBar(props: SearchBarProps) {
                 </div>
             </div>
             <Search
-                placeholder="Input"
+                placeholder="请输入"
                 enterButton
                 allowClear
                 onChange={onSearchKeyChange}
