@@ -1,2 +1,2 @@
 [workspace]
-members = ["backend", "search_base"]
+members = ["backend", "search_base", "search_engine"]
