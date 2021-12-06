@@ -32,7 +32,7 @@ function ArticleInfoList<T>(props: ArticleInfoListProps<T>) {
                             <Button
                                 onClick={props.onLoadMore}
                             >
-                                Load more
+                                加载更多
                             </Button>
                         );
                     case LoadingStatus.NothingToLoad:

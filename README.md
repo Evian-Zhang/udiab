@@ -16,3 +16,12 @@ docker build -t frontend .
 ```sh
 DOCKER_BUILDKIT=1 docker build -f backend.Dockerfile -t backend .
 ```
+
+### 爬虫
+
+```sh
+cd scraper
+pip3 install -r ./requirements.txt
+```
+
+安装依赖，然后调用每一个脚本即可爬虫（需设置`proxyUser`和`proxyPass`环境变量动态代理）。
