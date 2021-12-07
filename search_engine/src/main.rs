@@ -31,12 +31,12 @@ fn main() {
         };
         let json_object: Value = serde_json::from_str(line).unwrap();
         index_writer.add_document(doc!(
-            base_result.1.title => json_object["title"],
-            base_result.1.body => json_object["content"],
-            base_result.1.code => json_object["code"],
-            base_result.1.url => json_object["url"],
-            base_result.1.time => json_object["date"],
-            base_result.1.likes => json_object["views"]
+            base_result.1.title => json_object["title"].as_str().unwrap(),
+            base_result.1.body => json_object["content"].as_str().unwrap(),
+            base_result.1.code => json_object["code"].as_str().unwrap(),
+            base_result.1.url => json_object["url"].as_str().unwrap(),
+            base_result.1.time => json_object["date"].as_str().unwrap(),
+            base_result.1.likes => json_object["views"].as_u64().unwrap()
         ));
     }
 
