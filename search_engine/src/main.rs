@@ -7,7 +7,7 @@ use tantivy::{
 
 fn main() {
     
-    let path = "../index_dir";
+    let path = "index_dir";
     // base_result.0 is the index
     // base_result.1 is the struct ProjectDocument handling the fields
     let base_result = index(path).unwrap();
@@ -16,10 +16,19 @@ fn main() {
     let mut index_writer = base_result.0.writer(50_000_000).unwrap();
 
     // read documents
-    let mut file = std::fs::File::open("../test_files/JianShu.txt").unwrap();
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
+    let mut file = std::fs::File::open("test_files\\JianShu.txt").unwrap();
+    let mut buf = vec![];
+    match file.read_to_end(&mut buf) {
+        Ok(i) => {},
+        Err(j) => {
+            panic!("read_to_end error!");
+        }
+    }
+    let contents = String::from_utf8_lossy(&buf);
     let mut lines = contents.lines();
+    // let mut contents = String::new();
+    // file.read_to_string(&mut contents).unwrap();
+    // let mut lines = contents.lines();
     
     // parse json and write documents into index
     loop {
@@ -31,12 +40,30 @@ fn main() {
         };
         let json_object: Value = serde_json::from_str(line).unwrap();
         index_writer.add_document(doc!(
-            base_result.1.title => json_object["title"].as_str().unwrap(),
-            base_result.1.body => json_object["content"].as_str().unwrap(),
-            base_result.1.code => json_object["code"].as_str().unwrap(),
-            base_result.1.url => json_object["url"].as_str().unwrap(),
-            base_result.1.time => json_object["date"].as_str().unwrap(),
-            base_result.1.likes => json_object["views"].as_u64().unwrap()
+            base_result.1.title => match json_object["title"].as_str() {
+                Some(s) => s,
+                _ => ""
+            },
+            base_result.1.body => match json_object["content"].as_str() {
+                Some(s) => s,
+                _ => ""
+            },
+            base_result.1.code => match json_object["code"].as_str() {
+                Some(s) => s,
+                _ => ""
+            },
+            base_result.1.url => match json_object["url"].as_str() {
+                Some(s) => s,
+                _ => ""
+            },
+            base_result.1.time => match json_object["date"].as_str() {
+                Some(s) => s,
+                _ => ""
+            },
+            base_result.1.likes => match json_object["views"].as_u64() {
+                Some(s) => s,
+                _ => 0
+            }
         ));
     }
 
