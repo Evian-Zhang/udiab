@@ -220,9 +220,9 @@ function isMoreLikeThisInfoResponse(object: any): object is MoreLikeThisInfoResp
 async function fetchMoreLikeThisInfo(address: DocAddress, offset: number, pageSize: number): Promise<MoreLikeThisArticleInfo[]> {
     let api = new URL(`${window.location.origin}/api/more_like_this`);
     api.search = (new URLSearchParams(toString({
-        address: address,
         offset: offset,
         pageSize: pageSize,
+        ...address
     }))).toString();
     const moreLikeThisInfoResponse = await fetch(api.toString(), {
         method: 'GET'

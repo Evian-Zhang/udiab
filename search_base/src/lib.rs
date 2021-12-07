@@ -6,8 +6,10 @@ use jieba_rs::Jieba;
 use tantivy::{
     directory::MmapDirectory,
     schema::{
-        Field, IndexRecordOption, Schema, TextFieldIndexing, TextOptions, FAST, STORED, STRING,
+        Field, IndexRecordOption, Schema, TextFieldIndexing, TextOptions, FAST, INDEXED, STORED,
+        STRING,
     },
+    tokenizer::SimpleTokenizer,
     Index,
 };
 
@@ -48,7 +50,7 @@ fn schema() -> (Schema, ProjectDocument) {
         TextOptions::default().set_stored().set_indexing_options(
             TextFieldIndexing::default()
                 // untokenized
-                .set_tokenizer(STRING.get_indexing_options().unwrap().tokenizer())
+                .set_tokenizer("naivetokenizer")
                 .set_index_option(IndexRecordOption::WithFreqsAndPositions),
         ),
     );
@@ -58,7 +60,7 @@ fn schema() -> (Schema, ProjectDocument) {
         TextOptions::default().set_stored(), // default impl does not gen index
     );
 
-    let time = schema_builder.add_date_field("time", FAST | STORED);
+    let time = schema_builder.add_date_field("time", INDEXED | STORED);
 
     let likes = schema_builder.add_u64_field("likes", FAST | STORED);
 
@@ -96,6 +98,9 @@ pub fn index<P: AsRef<Path>>(directory_path: P) -> tantivy::Result<(Index, Proje
 
     let index = Index::open_or_create(MmapDirectory::open(directory_path)?, schema)?;
     index.tokenizers().register(CANG_JIE, cang_jie_tokenizer);
+    index
+        .tokenizers()
+        .register("naivetokenizer", SimpleTokenizer);
 
     Ok((index, project_document))
 }

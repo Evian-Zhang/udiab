@@ -70,10 +70,7 @@ fn main() {
             println!("{}", a);
             return;
         };
-        let naive_datetime = NaiveDateTime::from_timestamp(
-            (json_object.date / 1000) as i64,
-            (json_object.date % 1000) as u32,
-        );
+        let naive_datetime = NaiveDateTime::from_timestamp(json_object.date as i64, 0);
         let date = DateTime::from_utc(naive_datetime, Utc);
         index_writer.add_document(doc!(
             base_result.1.title => json_object.title,

@@ -217,9 +217,9 @@ impl UdiabModel {
                 .searcher()
                 .index()
                 .tokenizers()
-                .get("default")
+                .get("naivetokenizer")
                 .ok_or(UserError::Unexpected(format!(
-                    "Unable to find default tokenizer"
+                    "Unable to find simple tokenizer"
                 )))?;
             let mut subqueries = searched_fields
                 .iter()
