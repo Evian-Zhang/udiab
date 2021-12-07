@@ -7,10 +7,8 @@ COPY search_engine ./search_engine/
 COPY Cargo.toml .
 COPY Cargo.lock .
 RUN cargo build --release
-RUN cargo build -p backend --release
+RUN cargo build -p search_engine --release
 
 # production environment
 FROM debian:buster-slim
-COPY --from=build /app/target/release/backend ./backend
-EXPOSE 80
-CMD ["./backend"]
+COPY --from=build /app/target/release/search_engine ./search_engine

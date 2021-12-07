@@ -17,6 +17,14 @@ docker build -t frontend .
 DOCKER_BUILDKIT=1 docker build -f backend.Dockerfile -t backend .
 ```
 
+### 索引器
+
+在项目根目录：
+
+```sh
+DOCKER_BUILDKIT=1 docker build -f search_engine.Dockerfile -t search_engine .
+```
+
 ### 爬虫
 
 ```sh
