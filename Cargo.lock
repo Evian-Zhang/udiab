@@ -1757,9 +1757,12 @@ dependencies = [
 name = "search_engine"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "search_base",
+ "serde",
  "serde_json",
  "tantivy",
+ "toml",
 ]
 
 [[package]]
