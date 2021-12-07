@@ -28,7 +28,7 @@ function composeSnippetHighlight(snippet: string, highlightPositions: BackendRan
             textList.push(decoder.decode(unhighlightedSegment));
         }
         const highlightedSegment = encoded_snippet.slice(highlightPosition.start, highlightPosition.end);
-        if (unhighlightedSegment.length > 0) {
+        if (highlightedSegment.length > 0) {
             const highlightedComponent = <HighlightText text={decoder.decode(highlightedSegment)} key={`${highlightPosition.start}-${snippet.slice(0, 16)}`}/>;
             textList.push(highlightedComponent);
         }
@@ -39,7 +39,7 @@ function composeSnippetHighlight(snippet: string, highlightPositions: BackendRan
         textList.push(decoder.decode(unhighlightedSegment));
     }
     return (
-        <>{textList}</>
+        <span>{textList}</span>
     );
 }
 
@@ -56,6 +56,7 @@ interface SearchBarProps {
 function SearchBar(props: SearchBarProps) {
     const [keyHints, setKeyHints] = useState<Snippet[]>([]);
     const [willUseAdvancedSearch, setWillUseAdvancedSearch] = useState(false);
+    const [keyChanged, setKeyChanged] = useState(false);
 
     const advancedSearchVisiblity = willUseAdvancedSearch ? "visible" : "hidden";
 
@@ -80,10 +81,16 @@ function SearchBar(props: SearchBarProps) {
         if (props.isSearching) {
             return;
         }
+        setKeyChanged(true);
         const newSearchKey = e.target.value;
         if (isSearchKeyValid(newSearchKey)) {
             debouncedFetchKeyHints(newSearchKey);
         }
+    }
+
+    function onSearch(key: string) {
+        setKeyChanged(false);
+        props.onSearch(key);
     }
 
     return (
@@ -97,7 +104,7 @@ function SearchBar(props: SearchBarProps) {
                         }}
                     />
                     <span>
-                        Advanced search
+                        高级搜索
                     </span>
                 </Space>
                 <div
@@ -108,7 +115,7 @@ function SearchBar(props: SearchBarProps) {
                     justifyContent: "space-around"
                 }}>
                     <div>
-                        Sort by
+                        按
                         <Select
                             defaultValue={AdvanceSearchOptions.default().sortBy}
                             style={{width: "auto"}}
@@ -135,7 +142,7 @@ function SearchBar(props: SearchBarProps) {
                         />
                     </div>
                     <div>
-                        Searching
+                        搜索
                         <Select
                             defaultValue={AdvanceSearchOptions.default().searchField}
                             style={{width: "auto"}}
@@ -171,7 +178,7 @@ function SearchBar(props: SearchBarProps) {
                                 });
                             }}
                         />
-                        Use Complex Search
+                        使用复杂搜索
                     </div>
                 </div>
             </div>
@@ -181,9 +188,9 @@ function SearchBar(props: SearchBarProps) {
                 allowClear
                 onChange={onSearchKeyChange}
                 loading={props.isSearching}
-                onSearch={(value, _) => value.length !== 0 && props.onSearch(value)}
+                onSearch={(value, _) => value.length !== 0 && onSearch(value)}
             />
-            {keyHints.length !== 0 && !props.isSearching &&
+            {keyHints.length !== 0 && !props.isSearching && keyChanged &&
             <List
                 bordered
                 dataSource={keyHints}
@@ -192,6 +199,7 @@ function SearchBar(props: SearchBarProps) {
                         {composeSnippetHighlight(keyHint.fragments, keyHint.highlightedPositions)}
                     </List.Item>
                 )}
+                style={{zIndex: 100, backgroundColor: 'white'}}
             />}
         </div>
     );

@@ -8,7 +8,7 @@ export interface TopArticlesListCardProps {
 
 function TopArticlesListCard(props: TopArticlesListCardProps) {
     return(
-        <Card title="Top articles">
+        <Card title="热门文章">
             {props.topArticleInfos.length === 0
             ?
             <Spin/>
@@ -17,7 +17,9 @@ function TopArticlesListCard(props: TopArticlesListCardProps) {
                 dataSource={props.topArticleInfos}
                 renderItem={item => (
                     <List.Item>
-                        <a href={item.url}>{item.title}</a>
+                        <div style={{overflowX: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"}}>
+                            <a href={item.url}>{item.title}</a>
+                        </div>
                     </List.Item>
                 )}
             />
