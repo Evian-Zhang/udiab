@@ -3,6 +3,7 @@ FROM node:lts-alpine as build
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 COPY . ./
+RUN apk add python3 g++ make
 RUN npm ci --silent
 RUN npm install react-scripts -g --silent
 RUN npm run build
