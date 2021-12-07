@@ -21,6 +21,7 @@ pub struct RetrievedInfoRequest {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MoreLikeThisRequest {
+    #[serde(flatten)]
     pub address: UdiabDocAddress,
     pub offset: usize,
     pub page_size: usize,
