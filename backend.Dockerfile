@@ -6,7 +6,6 @@ COPY search_base ./search_base/
 COPY search_engine ./search_engine/
 COPY Cargo.toml .
 COPY Cargo.lock .
-RUN cargo build --release
 RUN cargo build -p backend --release
 
 # production environment
