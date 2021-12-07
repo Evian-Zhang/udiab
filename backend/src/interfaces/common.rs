@@ -8,6 +8,7 @@ use chrono::{serde::ts_milliseconds::serialize as to_milli_ts, DateTime, Utc};
 use derive_more::Display;
 use search_base::ProjectDocument;
 use serde::{Deserialize, Serialize};
+use serde_with::rust::display_fromstr::deserialize as deserialize_fromstr;
 use std::convert::{From, TryFrom};
 use std::ops::Range;
 use tantivy::{error::TantivyError, schema::Field, DocAddress};
@@ -72,7 +73,9 @@ impl Snippet {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UdiabDocAddress {
+    #[serde(deserialize_with = "deserialize_fromstr")]
     pub segment_ord: u32,
+    #[serde(deserialize_with = "deserialize_fromstr")]
     pub doc_id: u32,
 }
 
@@ -138,26 +141,28 @@ pub struct SearchedArticleInfo {
 pub struct AdvanceSearchOptions {
     pub sort_by: SearchSortBy,
     pub search_field: SearchField,
+    // see https://docs.rs/serde_qs/0.8.5/serde_qs/index.html#flatten-workaround
+    #[serde(deserialize_with = "deserialize_fromstr")]
     pub use_complex_search: bool,
 }
 
 /// The search result is sorted by ...
 #[derive(Deserialize)]
-#[serde(try_from = "usize")]
+#[serde(try_from = "String")]
 pub enum SearchSortBy {
     Time,
     Hot,
     Relevance,
 }
 
-impl TryFrom<usize> for SearchSortBy {
+impl TryFrom<String> for SearchSortBy {
     type Error = String;
 
-    fn try_from(discriminant: usize) -> Result<Self, Self::Error> {
-        match discriminant {
-            0 => Ok(SearchSortBy::Time),
-            1 => Ok(SearchSortBy::Hot),
-            2 => Ok(SearchSortBy::Relevance),
+    fn try_from(discriminant: String) -> Result<Self, Self::Error> {
+        match discriminant.as_str() {
+            "0" => Ok(SearchSortBy::Time),
+            "1" => Ok(SearchSortBy::Hot),
+            "2" => Ok(SearchSortBy::Relevance),
             _ => Err(format!(
                 "Unknown discriminant for SearchSortBy: {}.",
                 discriminant
@@ -168,7 +173,7 @@ impl TryFrom<usize> for SearchSortBy {
 
 /// Search field
 #[derive(Deserialize)]
-#[serde(try_from = "usize")]
+#[serde(try_from = "String")]
 pub enum SearchField {
     /// Only search title
     Title,
@@ -180,14 +185,14 @@ pub enum SearchField {
     All,
 }
 
-impl TryFrom<usize> for SearchField {
+impl TryFrom<String> for SearchField {
     type Error = String;
 
-    fn try_from(discriminant: usize) -> Result<Self, Self::Error> {
-        match discriminant {
-            0 => Ok(SearchField::Title),
-            1 => Ok(SearchField::Code),
-            2 => Ok(SearchField::All),
+    fn try_from(discriminant: String) -> Result<Self, Self::Error> {
+        match discriminant.as_str() {
+            "0" => Ok(SearchField::Title),
+            "1" => Ok(SearchField::Code),
+            "2" => Ok(SearchField::All),
             _ => Err(format!(
                 "Unknown discriminant for SearchField: {}.",
                 discriminant

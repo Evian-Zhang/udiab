@@ -7,12 +7,13 @@ use cang_jie::CANG_JIE;
 use chrono::{Duration, Utc};
 use search_base::ProjectDocument;
 use std::convert::Into;
+use std::ops::Bound;
 use tantivy::collector::TopDocs;
 use tantivy::{
     query::{
         BooleanQuery, MoreLikeThisQuery, PhraseQuery, Query, QueryParser, RangeQuery, TermQuery,
     },
-    schema::IndexRecordOption,
+    schema::{IndexRecordOption, Type},
     DocAddress, IndexReader, Searcher, SnippetGenerator, Term,
 };
 
@@ -340,9 +341,13 @@ impl UdiabModel {
 
         let searcher = self.reader.searcher();
         let current_time = Utc::now();
-        let yesterday = current_time - Duration::days(1);
-        let docs_in_today =
-            RangeQuery::new_i64(time_field, yesterday.timestamp()..current_time.timestamp());
+        let start_time = current_time - Duration::weeks(4);
+        let docs_in_today = RangeQuery::new_term_bounds(
+            time_field,
+            Type::Date,
+            &Bound::Included(Term::from_field_date(time_field, &start_time)),
+            &Bound::Excluded(Term::from_field_date(time_field, &current_time)),
+        );
         let today_top_docs = searcher
             .search(
                 &docs_in_today,
