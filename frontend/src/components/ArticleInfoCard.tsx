@@ -28,7 +28,7 @@ function composeSnippetHighlight(snippet: string, highlightPositions: BackendRan
             textList.push(decoder.decode(unhighlightedSegment));
         }
         const highlightedSegment = encoded_snippet.slice(highlightPosition.start, highlightPosition.end);
-        if (unhighlightedSegment.length > 0) {
+        if (highlightedSegment.length > 0) {
             const highlightedComponent = <HighlightText text={decoder.decode(highlightedSegment)} key={`${highlightPosition.start}-${snippet.slice(0, 16)}`}/>;
             textList.push(highlightedComponent);
         }
@@ -39,7 +39,7 @@ function composeSnippetHighlight(snippet: string, highlightPositions: BackendRan
         textList.push(decoder.decode(unhighlightedSegment));
     }
     return (
-        <>{textList}</>
+        <span>{textList}</span>
     );
 }
 

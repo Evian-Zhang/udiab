@@ -94,7 +94,7 @@ function App() {
           display: "flex",
           justifyContent: "center"
         }}>
-          <div style={{width: "60%", top: "20%", position: "absolute"}}>
+          <div style={{width: "60%", top: "20%", position: "absolute", zIndex: 50}}>
             <SearchBar
               isSearching={isSearching}
               onSearch={onSearch}
@@ -109,7 +109,8 @@ function App() {
             right: "2.5%",
             top: "50%",
             transform: "translateY(-50%)",
-            width: "20%"
+            width: "20%",
+            zIndex: 20
           }}>
             <TopArticlesListCard topArticleInfos={topArticleInfos}/>
           </div>
