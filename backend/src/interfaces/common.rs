@@ -73,6 +73,7 @@ impl Snippet {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UdiabDocAddress {
+    // see https://docs.rs/serde_qs/0.8.5/serde_qs/index.html#flatten-workaround
     #[serde(deserialize_with = "deserialize_fromstr")]
     pub segment_ord: u32,
     #[serde(deserialize_with = "deserialize_fromstr")]
@@ -141,9 +142,7 @@ pub struct SearchedArticleInfo {
 pub struct AdvanceSearchOptions {
     pub sort_by: SearchSortBy,
     pub search_field: SearchField,
-    // see https://docs.rs/serde_qs/0.8.5/serde_qs/index.html#flatten-workaround
-    #[serde(deserialize_with = "deserialize_fromstr")]
-    pub use_complex_search: bool,
+    pub search_method: SearchMethod,
 }
 
 /// The search result is sorted by ...
@@ -212,6 +211,34 @@ impl SearchField {
             SearchField::Title => vec![title],
             SearchField::Code => vec![code],
             SearchField::All => vec![title, body, code],
+        }
+    }
+}
+
+/// Search Method
+#[derive(Deserialize)]
+#[serde(try_from = "String")]
+pub enum SearchMethod {
+    /// Naive search method
+    Naive,
+    /// Complex search method
+    Complex,
+    /// Regex search method
+    Regex,
+}
+
+impl TryFrom<String> for SearchMethod {
+    type Error = String;
+
+    fn try_from(discriminant: String) -> Result<Self, Self::Error> {
+        match discriminant.as_str() {
+            "0" => Ok(SearchMethod::Naive),
+            "1" => Ok(SearchMethod::Complex),
+            "2" => Ok(SearchMethod::Regex),
+            _ => Err(format!(
+                "Unknown discriminant for SearchMethod: {}.",
+                discriminant
+            )),
         }
     }
 }

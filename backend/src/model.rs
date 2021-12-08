@@ -1,6 +1,6 @@
 use super::interfaces::{
-    AdvanceSearchOptions, MoreLikeThisArticleInfo, SearchSortBy, SearchedArticleInfo, Snippet,
-    TopArticleInfo, UdiabDocAddress, UserError, MAX_BODY_LENGTH, MAX_CODE_LENGTH,
+    AdvanceSearchOptions, MoreLikeThisArticleInfo, SearchMethod, SearchSortBy, SearchedArticleInfo,
+    Snippet, TopArticleInfo, UdiabDocAddress, UserError, MAX_BODY_LENGTH, MAX_CODE_LENGTH,
     MAX_KEY_HINTS_COUNT, MAX_TITLE_LENGTH, TOP_ARTICLE_INFOS_COUNT,
 };
 use cang_jie::CANG_JIE;
@@ -11,7 +11,8 @@ use std::ops::Bound;
 use tantivy::collector::TopDocs;
 use tantivy::{
     query::{
-        BooleanQuery, MoreLikeThisQuery, PhraseQuery, Query, QueryParser, RangeQuery, TermQuery,
+        BooleanQuery, MoreLikeThisQuery, PhraseQuery, Query, QueryParser, RangeQuery, RegexQuery,
+        TermQuery,
     },
     schema::{IndexRecordOption, Type},
     DocAddress, IndexReader, Searcher, SnippetGenerator, Term,
@@ -181,79 +182,103 @@ impl UdiabModel {
             .search_field
             .tantivy_fields(self.project_document);
 
-        let query_parser = QueryParser::for_index(&searcher.index(), searched_fields.clone());
-
-        let query = if advanced_search_options.use_complex_search {
-            // When user uses complex search, we just use the built-in parse query
-            // to build a query, and NO lenient mode
-            query_parser.parse_query(&key).map_err(|tantivy_error| {
-                UserError::UnexpectedTantivy {
-                    tantivy_error: tantivy_error.into(),
-                }
-            })?
-        } else {
-            // When user does not use complex search, we use corresponding
-            // tokenizer to tokenize the whole query, and make it a TermQuery
-            // or PhraseQuery. For multiple field searching, the final query
-            // will be a bool-or query.
-            //
-            // This query procedure can be found in the source code in tantivy;
-            // since issue tantivy-search/tantivy#1162 has not been resolved,
-            // we can only extract such logic from its source code
-
-            // For All and Title
-            let chinese_tokenizer = self
-                .reader
-                .searcher()
-                .index()
-                .tokenizers()
-                .get(CANG_JIE)
-                .ok_or(UserError::Unexpected(format!(
-                    "Unable to find CANG JIE tokenizer"
-                )))?;
-            // For Code
-            let trivial_tokenizer = self
-                .reader
-                .searcher()
-                .index()
-                .tokenizers()
-                .get("naivetokenizer")
-                .ok_or(UserError::Unexpected(format!(
-                    "Unable to find simple tokenizer"
-                )))?;
-            let mut subqueries = searched_fields
-                .iter()
-                .filter_map(|field| {
-                    let mut terms = vec![];
-                    let tokenizer = match field {
-                        field if *field == title_field || *field == body_field => {
-                            &chinese_tokenizer
-                        }
-                        field if *field == code_field => &trivial_tokenizer,
-                        // unreachable
-                        _ => &trivial_tokenizer,
-                    };
-                    let mut token_stream = tokenizer.token_stream(&key);
-                    token_stream.process(&mut |token| {
-                        let term = Term::from_field_text(*field, &token.text);
-                        terms.push((token.position, term));
-                    });
-                    match &terms[..] {
-                        [] => None,
-                        [(_, term)] => Some(Box::new(TermQuery::new(
-                            term.clone(),
-                            IndexRecordOption::WithFreqs,
-                        )) as Box<dyn Query>),
-                        _ => Some(Box::new(PhraseQuery::new_with_offset(terms)) as Box<dyn Query>),
+        let query =
+            match advanced_search_options.search_method {
+                SearchMethod::Regex => {
+                    let mut subqueries = searched_fields
+                        .iter()
+                        .map(|field| {
+                            let regex_query = RegexQuery::from_pattern(&key, *field)?;
+                            Ok(Box::new(regex_query) as Box<dyn Query>)
+                        })
+                        .collect::<Result<Vec<_>, tantivy::error::TantivyError>>()
+                        .map_err(|tantivy_error| UserError::UnexpectedTantivy {
+                            tantivy_error: tantivy_error.into(),
+                        })?;
+                    if let &[_] = &subqueries[..] {
+                        subqueries.pop().unwrap()
+                    } else {
+                        Box::new(BooleanQuery::union(subqueries))
                     }
-                })
-                .collect::<Vec<Box<dyn Query>>>();
-            if let &[_] = &subqueries[..] {
-                subqueries.pop().unwrap()
-            } else {
-                Box::new(BooleanQuery::union(subqueries))
-            }
-        };
+                }
+                SearchMethod::Complex => {
+                    // When user uses complex search, we just use the built-in parse query
+                    // to build a query, and NO lenient mode
+                    let query_parser =
+                        QueryParser::for_index(&searcher.index(), searched_fields.clone());
+                    query_parser.parse_query(&key).map_err(|tantivy_error| {
+                        UserError::UnexpectedTantivy {
+                            tantivy_error: tantivy_error.into(),
+                        }
+                    })?
+                }
+                SearchMethod::Naive => {
+                    // When user does not use complex search, we use corresponding
+                    // tokenizer to tokenize the whole query, and make it a TermQuery
+                    // or PhraseQuery. For multiple field searching, the final query
+                    // will be a bool-or query.
+                    //
+                    // This query procedure can be found in the source code in tantivy;
+                    // since issue tantivy-search/tantivy#1162 has not been resolved,
+                    // we can only extract such logic from its source code
+
+                    // For All and Title
+                    let chinese_tokenizer = self
+                        .reader
+                        .searcher()
+                        .index()
+                        .tokenizers()
+                        .get(CANG_JIE)
+                        .ok_or(UserError::Unexpected(format!(
+                            "Unable to find CANG JIE tokenizer"
+                        )))?;
+                    // For Code
+                    let trivial_tokenizer = self
+                        .reader
+                        .searcher()
+                        .index()
+                        .tokenizers()
+                        .get("naivetokenizer")
+                        .ok_or(UserError::Unexpected(format!(
+                            "Unable to find simple tokenizer"
+                        )))?;
+                    let mut subqueries =
+                        searched_fields
+                            .iter()
+                            .filter_map(|field| {
+                                let mut terms = vec![];
+                                let tokenizer = match field {
+                                    field if *field == title_field || *field == body_field => {
+                                        &chinese_tokenizer
+                                    }
+                                    field if *field == code_field => &trivial_tokenizer,
+                                    // unreachable
+                                    _ => &trivial_tokenizer,
+                                };
+                                let mut token_stream = tokenizer.token_stream(&key);
+                                token_stream.process(&mut |token| {
+                                    let term = Term::from_field_text(*field, &token.text);
+                                    terms.push((token.position, term));
+                                });
+                                match &terms[..] {
+                                    [] => None,
+                                    [(_, term)] => Some(Box::new(TermQuery::new(
+                                        term.clone(),
+                                        IndexRecordOption::WithFreqs,
+                                    ))
+                                        as Box<dyn Query>),
+                                    _ => Some(Box::new(PhraseQuery::new_with_offset(terms))
+                                        as Box<dyn Query>),
+                                }
+                            })
+                            .collect::<Vec<Box<dyn Query>>>();
+                    if let &[_] = &subqueries[..] {
+                        subqueries.pop().unwrap()
+                    } else {
+                        Box::new(BooleanQuery::union(subqueries))
+                    }
+                }
+            };
 
         let mut title_snippet_generator = SnippetGenerator::create(&searcher, &query, title_field)
             .map_err(|tantivy_error| UserError::UnexpectedTantivy { tantivy_error })?;

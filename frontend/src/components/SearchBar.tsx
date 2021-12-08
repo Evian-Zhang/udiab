@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Input, List, Switch, Space, Select, message } from 'antd'
-import { fetchKeyHints, isSearchKeyValid, SearchSortBy, AdvanceSearchOptions, SearchField, Snippet, BackendRange } from '../util';
+import { fetchKeyHints, isSearchKeyValid, SearchSortBy, SearchMethod, AdvanceSearchOptions, SearchField, Snippet, BackendRange } from '../util';
 import debounce from 'debounce'
 
 const { Search } = Input;
@@ -169,16 +169,31 @@ function SearchBar(props: SearchBarProps) {
                         />
                     </div>
                     <div>
-                        <Switch
-                            defaultChecked={AdvanceSearchOptions.default().useComplexSearch}
-                            onChange={useComplexSearch => {
+                        搜索方案
+                        <Select
+                            defaultValue={AdvanceSearchOptions.default().searchMethod}
+                            style={{width: "auto"}}
+                            options={[
+                                {
+                                    label: "普通搜索",
+                                    value: SearchMethod.Naive
+                                },
+                                {
+                                    label: "复杂搜索",
+                                    value: SearchMethod.Complex
+                                },
+                                {
+                                    label: "正则表达式搜索",
+                                    value: SearchMethod.Regex
+                                }
+                            ]}
+                            onChange={(value, _) => {
                                 props.onAdvanceSearchOptionsChange({
                                     ...props.advanceSearchOptions,
-                                    useComplexSearch
+                                    searchMethod: value
                                 });
                             }}
                         />
-                        使用复杂搜索
                     </div>
                 </div>
             </div>

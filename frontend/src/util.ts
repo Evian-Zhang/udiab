@@ -51,22 +51,28 @@ export enum SearchField {
     All = 2,
 }
 
+export enum SearchMethod {
+    Naive = 0,
+    Complex = 1,
+    Regex = 2,
+}
+
 export class AdvanceSearchOptions {
     sortBy: SearchSortBy
     searchField: SearchField
-    useComplexSearch: boolean
+    searchMethod: SearchMethod
 
-    constructor(sortBy: SearchSortBy, searchField: SearchField, useComplexSearch: boolean) {
+    constructor(sortBy: SearchSortBy, searchField: SearchField, searchMethod: SearchMethod) {
         this.sortBy = sortBy;
         this.searchField = searchField;
-        this.useComplexSearch = useComplexSearch;
+        this.searchMethod = searchMethod;
     }
 
     static default(): AdvanceSearchOptions {
         return {
             sortBy: SearchSortBy.Relevance,
             searchField: SearchField.All,
-            useComplexSearch: false
+            searchMethod: SearchMethod.Naive
         };
     }
 }
