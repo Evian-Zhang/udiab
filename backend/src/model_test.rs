@@ -69,7 +69,7 @@ fn test_get_retrieved_info_by_relevance() {
             AdvanceSearchOptions {
                 search_field: SearchField::All,
                 sort_by: SearchSortBy::Relevance,
-                use_complex_search: true,
+                search_method: SearchMethod::Naive,
             },
             0,
             10,
@@ -90,11 +90,12 @@ fn test_get_retrieved_info_by_time() {
             AdvanceSearchOptions {
                 search_field: SearchField::All,
                 sort_by: SearchSortBy::Time,
-                use_complex_search: true,
+                search_method: SearchMethod::Naive,
             },
             0,
             10,
         );
+        println!("{:?}", got);
         assert!(got.is_ok());
         let got = got.unwrap();
         let got_url = got.into_iter().map(|info| info.url).collect::<Vec<_>>();
@@ -111,7 +112,7 @@ fn test_get_retrieved_info_by_hot() {
             AdvanceSearchOptions {
                 search_field: SearchField::All,
                 sort_by: SearchSortBy::Hot,
-                use_complex_search: true,
+                search_method: SearchMethod::Naive,
             },
             0,
             10,

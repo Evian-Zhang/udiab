@@ -60,7 +60,7 @@ fn schema() -> (Schema, ProjectDocument) {
         TextOptions::default().set_stored(), // default impl does not gen index
     );
 
-    let time = schema_builder.add_date_field("time", INDEXED | STORED);
+    let time = schema_builder.add_date_field("time", INDEXED | STORED | FAST);
 
     let likes = schema_builder.add_u64_field("likes", FAST | STORED);
 
